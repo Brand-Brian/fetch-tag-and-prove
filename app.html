@@ -123,6 +123,7 @@
     <button data-t="network">Network</button>
     <button data-t="reconcile">Reconcile</button>
     <button data-t="inbox">Inbox</button>
+    <button data-t="payouts">Payouts</button>
     <button data-t="setup">Setup</button>
   </nav>
 
@@ -265,6 +266,21 @@
     <div class="result" id="reconOut"></div>
   </section>
 
+  <!-- PAYOUTS -->
+  <section id="payouts">
+    <h2>Payouts</h2>
+    <p class="sub">Every dollar owed to every creator, across the whole network. Verified stays only — reported bookings don't count until the stay completes.</p>
+    <div class="totals" id="payTotals"></div>
+    <div class="panel" style="margin-top:1.25rem">
+      <h2 style="font-size:1.05rem">Owed now</h2>
+      <div id="payOwed"></div>
+    </div>
+    <div class="panel">
+      <h2 style="font-size:1.05rem">Payment history</h2>
+      <div id="payHistory"></div>
+    </div>
+  </section>
+
   <!-- INBOX -->
   <section id="inbox">
     <h2>Inbox</h2>
@@ -290,6 +306,11 @@
       <input id="sbKey" placeholder="eyJ...">
       <button class="btn" onclick="saveSetup()">Connect</button>
       <button class="btn ghost" onclick="clearSetup()" style="margin-left:.5rem">Disconnect</button>
+      <div style="margin-top:1.4rem;padding-top:1.2rem;border-top:1px solid var(--gold-soft)">
+        <label>Demo data — fills every dashboard with believable properties, creators, taps, and bookings. Demo rows are marked and removable without touching real data.</label>
+        <button class="btn ghost" onclick="seedDemo()">Seed demo data</button>
+        <button class="btn ghost" onclick="clearDemo()" style="margin-left:.5rem">Clear demo data</button>
+      </div>
       <div class="flash" id="setupFlash"></div>
     </div>
   </section>
@@ -745,9 +766,16 @@ async function renderInbox(){
       const { data, error } = await sb.from('waitlist').select('*').order('created_at', {ascending:false});
       if (error) throw error;
       wl.innerHTML = data.length
-        ? '<table><thead><tr><th>Kind</th><th>Who</th><th>Email</th><th>Details</th><th>When</th></tr></thead><tbody>' +
-          data.map(w => `<tr><td>${esc(w.kind)}</td><td>${esc(w.name || w.handle_or_property || '')}</td><td>${esc(w.email)}</td><td>${esc([w.handle_or_property, w.region].filter(Boolean).join(' · '))}</td><td>${new Date(w.created_at).toLocaleDateString('en-CA')}</td></tr>`).join('') + '</tbody></table>'
+        ? '<table><thead><tr><th>Kind</th><th>Who</th><th>Email</th><th>Details</th><th>Status</th><th></th></tr></thead><tbody>' +
+          data.map(w => {
+            const done = w.status && w.status !== 'new';
+            let act = '';
+            if (!done && w.kind === 'property') act = `<button class="btn small" onclick="approveProperty('${w.id}')">Add to network</button>`;
+            else if (!done) act = `<button class="btn small" onclick="markHandled('${w.id}')">Mark handled</button>`;
+            return `<tr><td>${esc(w.kind)}</td><td>${esc(w.name || w.handle_or_property || '')}</td><td>${esc(w.email)}</td><td>${esc([w.handle_or_property, w.region].filter(Boolean).join(' · '))}</td><td>${done ? '<span style="color:var(--good);font-weight:600">'+esc(w.status)+'</span>' : 'new'}</td><td class="num">${act}</td></tr>`;
+          }).join('') + '</tbody></table>'
         : '<div class="empty">No signups yet. Share the site.</div>';
+      window._wl = data;
     } catch(e){
       wl.innerHTML = '<div class="empty">Could not load waitlist: ' + esc(e.message) + ' — has admin.sql been run in Supabase?</div>';
     }
@@ -761,6 +789,116 @@ async function renderInbox(){
   } catch(e){ ll.innerHTML = '<div class="empty">Could not load leads: ' + esc(e.message) + '</div>'; }
 }
 
+/* ---------------- payouts ---------------- */
+async function renderPayouts(){
+  const [bookings, tags] = await Promise.all([dbList('bookings'), dbList('tags')]);
+  const tagById = Object.fromEntries(tags.map(t => [t.id, t]));
+  const camt = b => Number(b.creator_amount ?? b.booking_value*0.05);
+  const owed = {}, paidHist = {};
+  bookings.forEach(b => {
+    const h = tagById[b.tag_id]?.creator_handle || '—';
+    if (b.status === 'verified'){ owed[h] = owed[h] || {total:0, ids:[]}; owed[h].total += camt(b); owed[h].ids.push(b.id); }
+    if (b.status === 'paid'){ paidHist[h] = paidHist[h] || {total:0, n:0, last:''}; paidHist[h].total += camt(b); paidHist[h].n++; if ((b.paid_at||'') > paidHist[h].last) paidHist[h].last = b.paid_at || ''; }
+  });
+  const owedTotal = Object.values(owed).reduce((s,o)=>s+o.total,0);
+  const paidTotal = Object.values(paidHist).reduce((s,o)=>s+o.total,0);
+  $('payTotals').innerHTML = `
+    <div class="tot"><b>${money(owedTotal)}</b><span>Owed to creators now</span></div>
+    <div class="tot"><b>${Object.keys(owed).length}</b><span>Creators awaiting payout</span></div>
+    <div class="tot"><b>${money(paidTotal)}</b><span>Paid out, all time</span></div>`;
+  const oe = Object.entries(owed).sort((a,b)=>b[1].total-a[1].total);
+  $('payOwed').innerHTML = oe.length
+    ? '<table><thead><tr><th>Creator</th><th class="num">Owed (5%)</th><th></th></tr></thead><tbody>' +
+      oe.map(([h,o]) => `<tr><td>${esc(h)}</td><td class="num">${money(o.total)}</td><td class="num"><button class="btn small" onclick="payCreator('${o.ids.join(',')}')">Mark paid</button></td></tr>`).join('') + '</tbody></table>'
+    : '<div class="empty">Nothing owed. Every verified stay is settled.</div>';
+  const pe = Object.entries(paidHist).sort((a,b)=>b[1].total-a[1].total);
+  $('payHistory').innerHTML = pe.length
+    ? '<table><thead><tr><th>Creator</th><th class="num">Stays paid</th><th class="num">Total paid</th><th>Last payout</th></tr></thead><tbody>' +
+      pe.map(([h,o]) => `<tr><td>${esc(h)}</td><td class="num">${o.n}</td><td class="num">${money(o.total)}</td><td>${esc(o.last)}</td></tr>`).join('') + '</tbody></table>'
+    : '<div class="empty">No payouts yet.</div>';
+}
+async function payCreator(idList){
+  const today = new Date().toISOString().slice(0,10);
+  for (const id of idList.split(',')) await dbUpdate('bookings', id, { status:'paid', paid_at: today });
+  renderPayouts(); renderProof();
+}
+
+/* ---------------- inbox actions ---------------- */
+async function approveProperty(id){
+  const w = (window._wl||[]).find(x => x.id === id);
+  if (!w) return;
+  try {
+    await dbInsert('network_properties', { name: w.handle_or_property || w.name || 'New property', region: w.region || null, contact_name: w.email });
+    if (sb) await sb.from('waitlist').update({ status: 'added to network' }).eq('id', id);
+    renderInbox(); renderNetwork();
+  } catch(e){ alert('Could not approve: ' + e.message + ' — has manage.sql been run?'); }
+}
+async function markHandled(id){
+  try {
+    if (sb) await sb.from('waitlist').update({ status: 'handled' }).eq('id', id);
+    renderInbox();
+  } catch(e){ alert('Could not update: ' + e.message + ' — has manage.sql been run?'); }
+}
+
+/* ---------------- demo data ---------------- */
+const DEMO_PROPS = [
+  ['Driftwood Cove Cabins','Tofino, BC','property','https://example.com/driftwood/book'],
+  ['Alpenglow Lodge','Whistler, BC','property','https://example.com/alpenglow/book'],
+  ['Saltwater House','Salt Spring Island, BC','property','https://example.com/saltwater/book'],
+  ['Cedar & Tide Tours','Ucluelet, BC','tour_operator','https://example.com/cedartide/book'],
+];
+const DEMO_CREATORS = ['@coastalkate','@northbyben','@saltandspray','@goldenhourgo'];
+async function seedDemo(){
+  try {
+    const props = [];
+    for (const [name,region,type,url] of DEMO_PROPS)
+      props.push(await dbInsert('network_properties', { name, region, type, booking_url: url }));
+    const tags = [];
+    let n = 0;
+    for (const h of DEMO_CREATORS){
+      for (const p of [props[n % 4], props[(n+1) % 4]]){
+        const code = `FETCH-DEMO-${h.replace(/[^A-Z]/gi,'').slice(0,4).toUpperCase()}-${(n+1)}${Math.random().toString(36).slice(2,4).toUpperCase()}`;
+        tags.push(await dbInsert('tags', { creator_handle: h, property_id: p.id, code, tracked_url: p.booking_url + '?ref=' + code }));
+        n++;
+      }
+    }
+    const now = Date.now(), day = 86400000;
+    for (const t of tags){
+      const taps = 20 + Math.floor(Math.random()*60);
+      for (let i=0;i<taps;i++)
+        await dbInsert('clicks', { code: t.code, clicked_at: new Date(now - Math.random()*45*day).toISOString() });
+    }
+    const statuses = ['paid','paid','verified','verified','verified','reported','reported'];
+    let s = 0;
+    for (const t of tags){
+      const nb = 1 + Math.floor(Math.random()*3);
+      for (let i=0;i<nb;i++){
+        const st = statuses[s++ % statuses.length];
+        const value = 600 + Math.floor(Math.random()*24)*100;
+        const booked = new Date(now - (10 + Math.random()*35)*day).toISOString().slice(0,10);
+        const row = { tag_id: t.id, code: t.code, booking_value: value, booked_on: booked, status: st };
+        if (st !== 'reported') row.checkout_date = new Date(now - Math.random()*9*day).toISOString().slice(0,10);
+        if (st === 'paid') row.paid_at = new Date(now - Math.random()*5*day).toISOString().slice(0,10);
+        if (!sb){ row.creator_amount = +(value*0.05).toFixed(2); row.fetch_amount = +(value*0.05).toFixed(2); }
+        await dbInsert('bookings', row);
+      }
+    }
+    flash('setupFlash', 'Demo data seeded: 4 properties, 4 creators, tags, taps, and bookings in every state.');
+    refreshAll();
+  } catch(e){ flash('setupFlash', 'Seed failed: ' + e.message, false); }
+}
+async function clearDemo(){
+  if (!sb){ demo = { props:[], tags:[], bookings:[], leads:[], clicks:[] }; refreshAll(); return; }
+  try {
+    await sb.from('bookings').delete().like('code', 'FETCH-DEMO-%');
+    await sb.from('clicks').delete().like('code', 'FETCH-DEMO-%');
+    await sb.from('tags').delete().like('code', 'FETCH-DEMO-%');
+    for (const [name] of DEMO_PROPS) await sb.from('network_properties').delete().eq('name', name);
+    flash('setupFlash', 'Demo data cleared. Real rows untouched.');
+    refreshAll();
+  } catch(e){ flash('setupFlash', 'Clear failed: ' + e.message, false); }
+}
+
 /* ---------------- nav & init ---------------- */
 $('nav').addEventListener('click', e => {
   const btn = e.target.closest('button'); if (!btn) return;
@@ -769,7 +907,7 @@ $('nav').addEventListener('click', e => {
 });
 
 async function refreshAll(){
-  try { await Promise.all([renderNetwork(), renderTags(), renderProof(), renderInbox()]); }
+  try { await Promise.all([renderNetwork(), renderTags(), renderProof(), renderInbox(), renderPayouts()]); }
   catch(e){ flash('setupFlash', 'Could not load data: ' + e.message + ' — check the schema ran in Supabase.', false); }
 }
 

@@ -76,6 +76,16 @@
   <div class="panel">
     <h2>Your links</h2>
     <div id="myTags"></div>
+    <div style="margin-top:1rem">
+      <h2 style="font-size:1rem">Attach old content</h2>
+      <p class="note" style="margin-bottom:.7rem">Got a Reel or TikTok from last year about one of these places? Attach it — it starts earning the day the next traveler taps through. Your back catalogue is an asset now.</p>
+      <div style="display:flex;gap:.6rem;flex-wrap:wrap;align-items:center">
+        <select id="attachTag" style="flex:1;min-width:180px"></select>
+        <input id="attachUrl" placeholder="https://www.instagram.com/reel/..." style="flex:2;min-width:220px">
+        <button class="btn small" onclick="attachContent()">Attach</button>
+      </div>
+      <div class="flash" id="attachFlash"></div>
+    </div>
   </div>
 
   <div class="panel">
@@ -100,14 +110,15 @@ const camt = b => Number(b.creator_amount ?? b.booking_value*0.05);
 
 let cache = null;
 async function fetchAll(){
-  const [tags, bookings, clicks, props] = await Promise.all([
+  const [tags, bookings, clicks, props, content] = await Promise.all([
     sb.from('tags').select('*'),
     sb.from('bookings').select('*'),
     sb.from('clicks').select('*'),
     sb.from('network_properties').select('*'),
+    sb.from('tag_content').select('*'),
   ]);
   for (const r of [tags,bookings,clicks,props]) if (r.error) throw r.error;
-  return { tags: tags.data, bookings: bookings.data, clicks: clicks.data, props: props.data };
+  return { tags: tags.data, bookings: bookings.data, clicks: clicks.data, props: props.data, content: content.error ? [] : content.data };
 }
 
 async function init(){
@@ -151,10 +162,15 @@ function load(){
       }).join('') + '</tbody></table>'
     : '<div class="empty">No bookings yet. Share your links — the first one changes everything.</div>';
 
+  const contentByTag = {};
+  (cache.content||[]).forEach(x => contentByTag[x.tag_id] = (contentByTag[x.tag_id]||0) + 1);
   $('myTags').innerHTML = myTags.length
-    ? '<table><thead><tr><th>Place</th><th>Code</th><th></th></tr></thead><tbody>' +
-      myTags.map(t => `<tr><td>${esc(propById[t.property_id]?.name || '—')}</td><td class="code">${esc(t.code)}</td><td class="num"><button class="btn small" onclick="copyLink('${esc(t.code)}', this)">Copy share link</button></td></tr>`).join('') + '</tbody></table>'
+    ? '<table><thead><tr><th>Place</th><th>Code</th><th class="num">Posts attached</th><th></th></tr></thead><tbody>' +
+      myTags.map(t => `<tr><td>${esc(propById[t.property_id]?.name || '—')}</td><td class="code">${esc(t.code)}</td><td class="num">${contentByTag[t.id]||0}</td><td class="num"><button class="btn small" onclick="copyLink('${esc(t.code)}', this)">Copy share link</button></td></tr>`).join('') + '</tbody></table>'
     : '<div class="empty">No links yet. Grab one from the network below.</div>';
+  $('attachTag').innerHTML = myTags.length
+    ? myTags.map(t => `<option value="${t.id}">${esc(propById[t.property_id]?.name || t.code)}</option>`).join('')
+    : '<option value="">Get a link first</option>';
 
   const taggedProps = new Set(myTags.map(t => t.property_id));
   $('network').innerHTML = cache.props.length
@@ -187,6 +203,21 @@ async function grabLink(propId, btn){
     flash('netFlash', `Link created for ${prop.name} and copied. Code: ${code}`);
     load();
   } catch(e){ flash('netFlash', 'Could not create: '+e.message, false); }
+}
+
+async function attachContent(){
+  const tagId = $('attachTag').value;
+  const url = $('attachUrl').value.trim();
+  if (!tagId) return flash('attachFlash','Grab a link from the network first.', false);
+  if (!url || !url.startsWith('http')) return flash('attachFlash','Paste the full link to your post.', false);
+  try {
+    const { data, error } = await sb.from('tag_content').insert({ tag_id: tagId, content_url: url }).select().single();
+    if (error) throw error;
+    (cache.content = cache.content || []).push(data);
+    $('attachUrl').value = '';
+    flash('attachFlash','Attached. That post is now working for you.');
+    load();
+  } catch(e){ flash('attachFlash','Could not attach: '+e.message + (e.message.includes('tag_content') ? ' — has retro.sql been run?' : ''), false); }
 }
 
 init();

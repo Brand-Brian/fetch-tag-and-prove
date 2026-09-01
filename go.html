@@ -5,20 +5,22 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>FETCH — taking you to your stay</title>
 <meta name="robots" content="noindex">
-<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700&family=Pacifico&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;
     background:linear-gradient(120deg,#EAF7FB,#F2FBF8);font-family:'Archivo',sans-serif;color:#0B3446}
   .card{text-align:center;padding:2rem}
-  .word{font-weight:700;letter-spacing:.16em;color:#0FA396;font-size:1.3rem;margin-bottom:.8rem}
+  .word{display:flex;align-items:center;justify-content:center;gap:.45rem;margin-bottom:.8rem}
+  .word span{font-family:'Pacifico',cursive;color:#0FA396;font-size:1.7rem;transform:translateY(-2px)}
+  .word img{width:34px;height:34px}
   p{color:#4A6B78}
   a{color:#0B8177;font-weight:700}
 </style>
 </head>
 <body>
 <div class="card">
-  <div class="word">FETCH</div>
+  <div class="word"><img src="/corgi.png" alt="" width="34" height="34"><span>Fetch</span><img src="/blacklab.png" alt="" width="34" height="34"></div>
   <p id="msg">Taking you to your stay…</p>
 </div>
 <script>

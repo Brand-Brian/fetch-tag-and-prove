@@ -27,7 +27,7 @@
 <meta name="twitter:description" content="The trips you inspire should pay you back. Creators earn cash on verified direct bookings.">
 <meta name="twitter:image" content="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&h=630&q=80">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Archivo:wght@400;500;600;700&family=Pacifico&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   :root{
@@ -56,7 +56,9 @@
     padding:.85rem 5vw;background:rgba(255,255,255,.82);backdrop-filter:blur(10px);
     border-bottom:1px solid rgba(255,255,255,.4);
   }
-  .wordmark{font-weight:700;letter-spacing:.16em;font-size:1.25rem;color:var(--aqua);text-decoration:none}
+  .wordmark{display:flex;align-items:center;gap:.45rem;text-decoration:none}
+  .wordmark img{width:34px;height:34px}
+  .wordmark span{font-family:'Pacifico',cursive;font-size:1.65rem;color:var(--aqua);line-height:1;transform:translateY(-2px)}
   .nav-links{display:flex;gap:1.5rem;align-items:center;font-size:.95rem}
   .nav-links a{text-decoration:none;color:var(--ink);opacity:.85;font-weight:500}
   .nav-links a:hover{opacity:1;color:var(--aqua)}
@@ -198,7 +200,10 @@
   .mascot-note{color:var(--slate);font-size:.85rem;margin-bottom:1.4rem;font-style:italic}
 
   footer{padding:3rem 5vw 4rem;color:var(--slate);font-size:.9rem;border-top:1px solid var(--line);background:var(--sky)}
-  .foot{display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap;max-width:1160px;margin:0 auto}
+  .foot{display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap;max-width:1160px;margin:0 auto;align-items:center}
+  .foot-brand{display:flex;align-items:center;gap:.4rem}
+  .foot-brand span{font-family:'Pacifico',cursive;font-size:1.25rem;color:var(--aqua-deep);transform:translateY(-2px)}
+  .foot-brand em{font-style:normal;color:var(--slate)}
   footer a{color:var(--aqua-deep);text-decoration:none;font-weight:600}
 
   @media (max-width:640px){
@@ -212,7 +217,11 @@
 <body>
 
 <nav class="nav">
-  <a class="wordmark" href="#top">FETCH</a>
+  <a class="wordmark" href="#top" aria-label="FETCH home">
+    <img src="/corgi.png" alt="" width="34" height="34">
+    <span>Fetch</span>
+    <img src="/blacklab.png" alt="" width="34" height="34">
+  </a>
   <div class="nav-links">
     <a href="#how" class="hide-sm">How it works</a>
     <a href="#creators" class="hide-sm">Creators</a>
@@ -513,7 +522,7 @@
 
 <footer>
   <div class="foot">
-    <div>FETCH · The best trip is the next one.</div>
+    <div class="foot-brand"><img src="/corgi.png" alt="" width="26" height="26"><span>Fetch</span><img src="/blacklab.png" alt="" width="26" height="26"><em>· The best trip is the next one.</em></div>
     <div><a href="/app.html">Live demo</a> · <a href="mailto:brian@brand-tastic.ca">brian@brand-tastic.ca</a></div>
   </div>
 </footer>

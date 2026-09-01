@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>FETCH — Tag &amp; Prove</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&family=Archivo+Narrow:wght@500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&family=Archivo+Narrow:wght@500;600&family=Pacifico&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   :root{
@@ -32,7 +32,9 @@
   .wrap{max-width:880px;margin:0 auto;padding:2rem 1.25rem 5rem}
 
   header{display:flex;align-items:baseline;justify-content:space-between;gap:1rem;margin-bottom:.4rem}
-  .brand{font-weight:800;font-size:1.6rem;letter-spacing:.14em;color:var(--gold)}
+  .brand{display:flex;align-items:center;gap:.4rem}
+  .brand img{width:30px;height:30px}
+  .brand span{font-family:'Pacifico',cursive;font-size:1.5rem;color:var(--gold);transform:translateY(-2px)}
   .mode{font-family:'Archivo Narrow';font-size:.85rem;color:var(--gray)}
   .mode strong{color:var(--gold);font-weight:600}
   .strap{color:var(--gray);font-size:.95rem;max-width:56ch;margin-bottom:1.75rem}
@@ -107,7 +109,7 @@
 <div class="wrap">
 
   <header>
-    <div class="brand">FETCH</div>
+    <div class="brand"><img src="/corgi-gold.png" alt="" width="30" height="30"><span>Fetch</span><img src="/blacklab-gold.png" alt="" width="30" height="30"></div>
     <div class="mode" id="modeBadge">Demo mode — nothing is saved</div>
   </header>
   <p class="strap">Tag &amp; Prove. Give a creator a tracked link and a code for a property. Log the bookings that come back. Watch the proof add up.</p>

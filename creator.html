@@ -17,10 +17,10 @@
   body{background:var(--paper);color:var(--ink);font-family:'Archivo',system-ui,sans-serif;line-height:1.55}
   .wrap{max-width:960px;margin:0 auto;padding:1.5rem 1.25rem 5rem}
   header{display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-bottom:1.6rem;flex-wrap:wrap}
-  .brand{position:relative;display:inline-flex;align-items:flex-end;gap:.12rem;padding:0 .12rem .5rem;color:var(--aqua);text-decoration:none}
-  .brand img{width:26px;height:26px;position:relative;z-index:1}
-  .brand span{font-family:'Pacifico',cursive;font-size:1.3rem;line-height:1;margin:0 .25rem;position:relative;z-index:1;transform:translateY(3px)}
-  .brand .swash{position:absolute;left:0;right:0;bottom:0;height:9px;color:inherit}
+  .brand{display:inline-flex;align-items:center;color:var(--aqua);text-decoration:none}
+  .brand img{width:26px;height:26px}
+  .brand .ln{width:15px;height:26px;color:inherit;flex:none}
+  .brand span{font-family:'Pacifico',cursive;font-size:1.3rem;line-height:1;margin:0 .1rem;transform:translateY(-2px);-webkit-text-stroke:.5px currentColor;paint-order:stroke fill}
   .who{display:flex;gap:.6rem;align-items:center}
   h1{font-family:'Fraunces',serif;font-weight:600;font-size:1.7rem;margin-bottom:.3rem}
   .sub{color:var(--slate);margin-bottom:1.4rem;max-width:60ch}
@@ -55,10 +55,7 @@
 <body>
 <div class="wrap">
   <header>
-    <a class="brand" href="/">
-      <img src="/corgi.png" alt=""><span>Fetch</span><img src="/blacklab.png" alt="">
-      <svg class="swash" viewBox="0 0 100 12" preserveAspectRatio="none" aria-hidden="true"><path d="M3 7 C 18 11.5, 30 3.5, 50 7.5 C 70 11, 82 3.5, 97 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-    </a>
+    <a class="brand" href="/"><img src="/corgi.png" alt=""><svg class="ln" viewBox="0 0 20 32" preserveAspectRatio="none" aria-hidden="true"><path d="M0 17 C 7 12.5, 13 21.5, 20 17" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" vector-effect="non-scaling-stroke"/></svg><span>Fetch</span><svg class="ln" viewBox="0 0 20 32" preserveAspectRatio="none" aria-hidden="true"><path d="M0 17 C 7 12.5, 13 21.5, 20 17" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" vector-effect="non-scaling-stroke"/></svg><img src="/blacklab.png" alt=""></a>
     <div class="who">
       <label for="whoSel" style="color:var(--slate);font-size:.9rem">You are</label>
       <select id="whoSel" onchange="load()"></select>

@@ -32,10 +32,10 @@
   .wrap{max-width:880px;margin:0 auto;padding:2rem 1.25rem 5rem}
 
   header{display:flex;align-items:baseline;justify-content:space-between;gap:1rem;margin-bottom:.4rem}
-  .brand{position:relative;display:inline-flex;align-items:flex-end;gap:.12rem;padding:0 .12rem .55rem;color:var(--gold)}
-  .brand img{width:28px;height:28px;position:relative;z-index:1}
-  .brand span{font-family:'Pacifico',cursive;font-size:1.45rem;line-height:1;margin:0 .28rem;position:relative;z-index:1;transform:translateY(3px)}
-  .brand .swash{position:absolute;left:0;right:0;bottom:0;height:10px;color:inherit}
+  .brand{display:inline-flex;align-items:center;color:var(--gold)}
+  .brand img{width:28px;height:28px}
+  .brand .ln{width:16px;height:28px;color:inherit;flex:none}
+  .brand span{font-family:'Pacifico',cursive;font-size:1.45rem;line-height:1;margin:0 .1rem;transform:translateY(-2px);-webkit-text-stroke:.5px currentColor;paint-order:stroke fill}
   .mode{font-family:'Archivo Narrow';font-size:.85rem;color:var(--gray)}
   .mode strong{color:var(--gold);font-weight:600}
   .strap{color:var(--gray);font-size:.95rem;max-width:56ch;margin-bottom:1.75rem}
@@ -110,7 +110,7 @@
 <div class="wrap">
 
   <header>
-    <div class="brand"><img src="/corgi-gold.png" alt="" width="28" height="28"><span>Fetch</span><img src="/blacklab-gold.png" alt="" width="28" height="28"><svg class="swash" viewBox="0 0 100 12" preserveAspectRatio="none" aria-hidden="true"><path d="M3 7 C 18 11.5, 30 3.5, 50 7.5 C 70 11, 82 3.5, 97 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div>
+    <div class="brand"><img src="/corgi-gold.png" alt=""><svg class="ln" viewBox="0 0 20 32" preserveAspectRatio="none" aria-hidden="true"><path d="M0 17 C 7 12.5, 13 21.5, 20 17" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" vector-effect="non-scaling-stroke"/></svg><span>Fetch</span><svg class="ln" viewBox="0 0 20 32" preserveAspectRatio="none" aria-hidden="true"><path d="M0 17 C 7 12.5, 13 21.5, 20 17" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" vector-effect="non-scaling-stroke"/></svg><img src="/blacklab-gold.png" alt=""></div>
     <div class="mode" id="modeBadge">Demo mode — nothing is saved</div>
   </header>
   <p class="strap">Admin — the whole network from back of house. Tags, bookings, reconciliation, and everyone knocking on the door. Dashboards: <a href="/creator.html" style="color:var(--gold)">creator</a> · <a href="/property.html" style="color:var(--gold)">property</a></p>

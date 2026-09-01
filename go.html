@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FETCH — taking you to your stay</title>
+<meta name="robots" content="noindex">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;
+    background:linear-gradient(120deg,#EAF7FB,#F2FBF8);font-family:'Archivo',sans-serif;color:#0B3446}
+  .card{text-align:center;padding:2rem}
+  .word{font-weight:700;letter-spacing:.16em;color:#0FA396;font-size:1.3rem;margin-bottom:.8rem}
+  p{color:#4A6B78}
+  a{color:#0B8177;font-weight:700}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="word">FETCH</div>
+  <p id="msg">Taking you to your stay…</p>
+</div>
+<script>
+const SB_URL = 'https://sqzuvtshebrgzivyzyif.supabase.co';
+const SB_KEY = 'sb_publishable_xbumKc7i0RuG4ARzSSB40w_jOuv0ihq';
+(async () => {
+  const code = new URLSearchParams(location.search).get('c');
+  const msg = document.getElementById('msg');
+  if (!code){ msg.innerHTML = 'This link is missing its code. <a href="/">Back to FETCH</a>'; return; }
+  let sb = null;
+  try { sb = supabase.createClient(SB_URL, SB_KEY); } catch(e){}
+  let dest = null;
+  if (sb){
+    try {
+      // log the click (don't block the traveler if it fails)
+      sb.from('clicks').insert({ code }).then(()=>{});
+      const { data } = await sb.from('tags').select('tracked_url').eq('code', code).maybeSingle();
+      if (data) dest = data.tracked_url;
+    } catch(e){}
+  }
+  if (dest){ location.replace(dest); }
+  else { msg.innerHTML = 'We couldn\'t find that stay. <a href="/">Back to FETCH</a>'; }
+})();
+</script>
+</body>
+</html>

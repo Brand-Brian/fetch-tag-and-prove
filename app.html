@@ -118,6 +118,7 @@
     <button data-t="book">Log a booking</button>
     <button data-t="proof">Proof</button>
     <button data-t="network">Network</button>
+    <button data-t="reconcile">Reconcile</button>
     <button data-t="setup">Setup</button>
   </nav>
 
@@ -239,6 +240,27 @@
     </div>
   </section>
 
+  <!-- RECONCILE -->
+  <section id="reconcile">
+    <h2>Reconcile a month</h2>
+    <p class="sub">Pick a property and month. You get the statement to send, the stays to confirm, and the creator payouts to make. Bookings move reported → verified (stay completed) → paid.</p>
+    <div class="panel">
+      <div class="row">
+        <div>
+          <label for="reconProperty">Property</label>
+          <select id="reconProperty"></select>
+        </div>
+        <div>
+          <label for="reconMonth">Month</label>
+          <input id="reconMonth" type="month">
+        </div>
+      </div>
+      <button class="btn" onclick="buildStatement()">Build statement</button>
+      <div class="flash" id="reconFlash"></div>
+    </div>
+    <div class="result" id="reconOut"></div>
+  </section>
+
   <!-- SETUP -->
   <section id="setup">
     <h2>Setup</h2>
@@ -262,7 +284,8 @@
 <script>
 /* ---------------- state & storage ---------------- */
 let sb = null;                 // supabase client, null = demo mode
-let demo = { props: [], tags: [], bookings: [], leads: [] };
+let demo = { props: [], tags: [], bookings: [], leads: [], clicks: [] };
+const SITE_URL = 'https://fetch-and-prove.netlify.app';
 
 const $ = (id) => document.getElementById(id);
 const money = (n) => '$' + Number(n).toLocaleString('en-CA', {minimumFractionDigits:2, maximumFractionDigits:2});
@@ -302,7 +325,18 @@ async function dbInsert(table, row){
   demo[tableKey(table)].push(r);
   return r;
 }
-function tableKey(t){ return {network_properties:'props', tags:'tags', bookings:'bookings', leads:'leads'}[t]; }
+function tableKey(t){ return {network_properties:'props', tags:'tags', bookings:'bookings', leads:'leads', clicks:'clicks'}[t]; }
+async function dbUpdate(table, id, patch){
+  if (sb){
+    const { data, error } = await sb.from(table).update(patch).eq('id', id).select().single();
+    if (error) throw error;
+    return data;
+  }
+  const arr = demo[tableKey(table)];
+  const r = arr.find(x => x.id === id);
+  if (r) Object.assign(r, patch);
+  return r;
+}
 
 /* ---------------- setup ---------------- */
 function saveSetup(){
@@ -364,6 +398,10 @@ async function renderNetwork(){
   sel.innerHTML = props.length
     ? props.map(p => `<option value="${p.id}">${esc(p.name)}${p.region ? ' — ' + esc(p.region) : ''}</option>`).join('')
     : '<option value="">Add a property in Network first</option>';
+  const rsel = $('reconProperty');
+  rsel.innerHTML = props.length
+    ? props.map(p => `<option value="${p.id}">${esc(p.name)}</option>`).join('')
+    : '<option value="">Add a property in Network first</option>';
 }
 
 /* ---------------- tags ---------------- */
@@ -405,12 +443,13 @@ async function createTag(){
 }
 
 function tagCard(tag, prop){
+  const share = `${SITE_URL}/go.html?c=${tag.code}`;
   return `<div class="panel">
     <b style="color:var(--gold)">${esc(tag.creator_handle)}</b> × ${esc(prop ? prop.name : 'property')}
+    <label style="margin-top:.75rem">Share link — this is what goes in bios, Stories, and DMs. Every tap is counted.</label>
+    <div class="copyable"><code>${esc(share)}</code><button class="btn small" onclick="copyText('${esc(share)}', this)">Copy</button></div>
     <label style="margin-top:.75rem">Promo code — survives screenshots, device switches, and slow deciders</label>
     <div class="copyable"><code>${esc(tag.code)}</code><button class="btn small" onclick="copyText('${esc(tag.code)}', this)">Copy</button></div>
-    <label style="margin-top:.75rem">Tracked link — for bio links, Stories stickers, and comment-to-DM</label>
-    <div class="copyable"><code>${esc(tag.tracked_url)}</code><button class="btn small" onclick="copyText('${esc(tag.tracked_url)}', this)">Copy</button></div>
   </div>`;
 }
 
@@ -531,23 +570,26 @@ async function renderProof(){
       creator: t.creator_handle || '—',
       property: propById[t.property_id]?.name || '—',
       code: b.code,
+      status: b.status || 'reported',
       value: Number(b.booking_value),
       creator_amount: Number(b.creator_amount ?? b.booking_value*0.05),
       fetch_amount: Number(b.fetch_amount ?? b.booking_value*0.05),
     };
   });
-  const gmv = proofCache.reduce((s,r)=>s+r.value,0);
-  const ce = proofCache.reduce((s,r)=>s+r.creator_amount,0);
-  const fe = proofCache.reduce((s,r)=>s+r.fetch_amount,0);
+  const verified = proofCache.filter(r => r.status !== 'reported');
+  const gmv = verified.reduce((s,r)=>s+r.value,0);
+  const ce = verified.reduce((s,r)=>s+r.creator_amount,0);
+  const fe = verified.reduce((s,r)=>s+r.fetch_amount,0);
   $('proofTotals').innerHTML = `
-    <div class="tot"><b>${proofCache.length}</b><span>Verified bookings</span></div>
-    <div class="tot"><b>${money(gmv)}</b><span>Direct GMV</span></div>
-    <div class="tot"><b>${money(ce)}</b><span>Paid to creators</span></div>
+    <div class="tot"><b>${verified.length}</b><span>Verified stays</span></div>
+    <div class="tot"><b>${money(gmv)}</b><span>Verified direct GMV</span></div>
+    <div class="tot"><b>${money(ce)}</b><span>Owed/paid to creators</span></div>
     <div class="tot"><b>${money(fe)}</b><span>Earned by FETCH</span></div>`;
   const el = $('proofTable');
   if (!proofCache.length){ el.innerHTML = '<div class="empty">No bookings yet. The first row in this table is the whole pilot.</div>'; return; }
-  el.innerHTML = '<table><thead><tr><th>Date</th><th>Creator</th><th>Property</th><th>Code</th><th class="num">Value</th><th class="num">Creator</th><th class="num">FETCH</th></tr></thead><tbody>' +
-    proofCache.map(r => `<tr><td>${esc(r.date)}</td><td>${esc(r.creator)}</td><td>${esc(r.property)}</td><td class="code">${esc(r.code)}</td><td class="num">${money(r.value)}</td><td class="num">${money(r.creator_amount)}</td><td class="num">${money(r.fetch_amount)}</td></tr>`).join('') +
+  const badge = s => s === 'paid' ? '<span style="color:var(--good);font-weight:600">paid</span>' : s === 'verified' ? '<span style="color:var(--gold);font-weight:600">verified</span>' : '<span style="color:var(--gray)">reported</span>';
+  el.innerHTML = '<table><thead><tr><th>Date</th><th>Creator</th><th>Property</th><th>Code</th><th>Status</th><th class="num">Value</th><th class="num">Creator</th><th class="num">FETCH</th></tr></thead><tbody>' +
+    proofCache.map(r => `<tr><td>${esc(r.date)}</td><td>${esc(r.creator)}</td><td>${esc(r.property)}</td><td class="code">${esc(r.code)}</td><td>${badge(r.status)}</td><td class="num">${money(r.value)}</td><td class="num">${money(r.creator_amount)}</td><td class="num">${money(r.fetch_amount)}</td></tr>`).join('') +
     '</tbody></table>';
 }
 
@@ -560,6 +602,120 @@ function exportCSV(){
   a.href = URL.createObjectURL(blob);
   a.download = 'fetch-proof.csv';
   a.click();
+}
+
+/* ---------------- reconcile ---------------- */
+let stmtText = '';
+async function buildStatement(){
+  const propId = $('reconProperty').value;
+  const month = $('reconMonth').value;   // 'YYYY-MM'
+  if (!propId) return flash('reconFlash', 'Pick a property.', false);
+  if (!month) return flash('reconFlash', 'Pick a month.', false);
+  try {
+    const [props, tags, bookings, clicks] = await Promise.all([
+      dbList('network_properties'), dbList('tags'), dbList('bookings'), dbList('clicks', 'clicked_at')
+    ]);
+    const prop = props.find(p => p.id === propId);
+    const propTags = tags.filter(t => t.property_id === propId);
+    const codes = new Set(propTags.map(t => t.code));
+    const inMonth = (d) => (d || '').slice(0,7) === month;
+
+    const monthClicks = clicks.filter(c => codes.has(c.code) && inMonth(c.clicked_at));
+    const clicksByCode = {};
+    monthClicks.forEach(c => clicksByCode[c.code] = (clicksByCode[c.code]||0) + 1);
+
+    const propBookings = bookings.filter(b => codes.has(b.code));
+    const open = propBookings.filter(b => (b.status||'reported') === 'reported');
+    const verifiedThisMonth = propBookings.filter(b => (b.status||'') !== 'reported' && inMonth(b.checkout_date || b.booked_on));
+
+    const tagByCode = Object.fromEntries(propTags.map(t => [t.code, t]));
+    const due = verifiedThisMonth.reduce((s,b)=> s + Number(b.booking_value)*0.10, 0);
+
+    // on-screen statement
+    let html = `<div class="panel"><b style="color:var(--gold)">${esc(prop.name)}</b> — statement for ${month}`;
+    html += `<div class="split" style="margin-top:.8rem">
+      <div><b>${monthClicks.length}</b><span>Tracked-link taps this month</span></div>
+      <div><b>${open.length}</b><span>Bookings awaiting stay confirmation</span></div>
+      <div><b>${money(due)}</b><span>Commission due on verified stays (10%)</span></div>
+    </div></div>`;
+
+    html += `<div class="panel"><h2 style="font-size:1.05rem">Active codes</h2>`;
+    html += propTags.length
+      ? '<table><thead><tr><th>Creator</th><th>Code</th><th class="num">Taps this month</th></tr></thead><tbody>' +
+        propTags.map(t => `<tr><td>${esc(t.creator_handle)}</td><td class="code">${esc(t.code)}</td><td class="num">${clicksByCode[t.code]||0}</td></tr>`).join('') + '</tbody></table>'
+      : '<div class="empty">No tags for this property yet.</div>';
+    html += '</div>';
+
+    html += `<div class="panel"><h2 style="font-size:1.05rem">Confirm completed stays</h2>
+      <p class="sub" style="margin-bottom:.75rem">The property reported these bookings. Confirming sets the checkout date to today and moves the booking to verified.</p>`;
+    html += open.length
+      ? '<table><thead><tr><th>Booked</th><th>Creator</th><th>Code</th><th class="num">Value</th><th></th></tr></thead><tbody>' +
+        open.map(b => `<tr><td>${esc(b.booked_on || '')}</td><td>${esc(tagByCode[b.code]?.creator_handle || '—')}</td><td class="code">${esc(b.code)}</td><td class="num">${money(b.booking_value)}</td><td><button class="btn small" onclick="verifyStay('${b.id}')">Stay completed</button></td></tr>`).join('') + '</tbody></table>'
+      : '<div class="empty">Nothing awaiting confirmation.</div>';
+    html += '</div>';
+
+    // creator payouts for the month
+    const owed = {};
+    verifiedThisMonth.filter(b => b.status === 'verified').forEach(b => {
+      const h = tagByCode[b.code]?.creator_handle || '—';
+      owed[h] = owed[h] || { total: 0, ids: [] };
+      owed[h].total += Number(b.creator_amount ?? b.booking_value*0.05);
+      owed[h].ids.push(b.id);
+    });
+    html += `<div class="panel"><h2 style="font-size:1.05rem">Creator payouts — ${month}</h2>`;
+    const entries = Object.entries(owed);
+    html += entries.length
+      ? '<table><thead><tr><th>Creator</th><th class="num">Owed (5%)</th><th></th></tr></thead><tbody>' +
+        entries.map(([h,o]) => `<tr><td>${esc(h)}</td><td class="num">${money(o.total)}</td><td><button class="btn small" onclick="markPaid('${o.ids.join(',')}')">Mark paid</button></td></tr>`).join('') + '</tbody></table>'
+      : '<div class="empty">No verified, unpaid stays in this month yet.</div>';
+    html += '</div>';
+
+    html += `<button class="btn ghost" onclick="copyText(stmtText.replace(/'/g,'\\''), this)">Copy statement for email</button>`;
+
+    $('reconOut').className = 'result show';
+    $('reconOut').innerHTML = html;
+
+    // plain-text statement
+    stmtText =
+`FETCH — Monthly statement
+Property: ${prop.name}
+Month: ${month}
+
+Activity
+- Tracked-link taps: ${monthClicks.length}
+- Active creator codes: ${propTags.length}
+
+Active codes and taps this month
+${propTags.map(t => `- ${t.creator_handle} · ${t.code} · ${clicksByCode[t.code]||0} taps`).join('\n') || '- none yet'}
+
+Bookings awaiting your confirmation (reply with completed stays: code, checkout date, booking value)
+${open.map(b => `- ${b.code} · booked ${b.booked_on || 'n/a'} · ${money(b.booking_value)}`).join('\n') || '- none'}
+
+Verified stays this month
+${verifiedThisMonth.map(b => `- ${b.code} · checkout ${b.checkout_date || b.booked_on} · ${money(b.booking_value)} · commission ${money(Number(b.booking_value)*0.10)}`).join('\n') || '- none'}
+
+Commission due this month (10% of verified stays): ${money(due)}
+
+Reminder: commission is only ever due on completed stays. Cancellations and no-shows cost nothing.
+Questions: brian@brand-tastic.ca`;
+
+    flash('reconFlash', 'Statement built.');
+  } catch(e){ flash('reconFlash', 'Could not build: ' + e.message + (sb ? ' — has reconcile.sql been run in Supabase?' : ''), false); }
+}
+
+async function verifyStay(id){
+  try {
+    await dbUpdate('bookings', id, { status: 'verified', checkout_date: new Date().toISOString().slice(0,10) });
+    buildStatement(); renderProof();
+  } catch(e){ flash('reconFlash', 'Update failed: ' + e.message, false); }
+}
+
+async function markPaid(idList){
+  try {
+    const today = new Date().toISOString().slice(0,10);
+    for (const id of idList.split(',')) await dbUpdate('bookings', id, { status: 'paid', paid_at: today });
+    buildStatement(); renderProof();
+  } catch(e){ flash('reconFlash', 'Update failed: ' + e.message, false); }
 }
 
 /* ---------------- nav & init ---------------- */
@@ -577,6 +733,7 @@ async function refreshAll(){
 loadSetup();
 setMode();
 $('bookDate').value = new Date().toISOString().slice(0,10);
+$('reconMonth').value = new Date().toISOString().slice(0,7);
 refreshAll();
 </script>
 </body>

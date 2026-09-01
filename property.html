@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FETCH — Property dashboard</title>
+<meta name="robots" content="noindex">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Archivo:wght@400;500;600;700&family=Pacifico&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  :root{
+    --paper:#FFFFFF;--mist:#F2FBF8;--sky:#EAF7FB;--ink:#0B3446;--slate:#4A6B78;
+    --aqua:#0FA396;--aqua-deep:#0B8177;--seafoam:#8FE0CD;--line:rgba(15,163,150,.22);
+    --good:#0B8177;--coral:#E2725B;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--paper);color:var(--ink);font-family:'Archivo',system-ui,sans-serif;line-height:1.55}
+  .wrap{max-width:960px;margin:0 auto;padding:1.5rem 1.25rem 5rem}
+  header{display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-bottom:1.6rem;flex-wrap:wrap}
+  .brand{position:relative;display:inline-flex;align-items:flex-end;gap:.12rem;padding:0 .12rem .5rem;color:var(--aqua);text-decoration:none}
+  .brand img{width:26px;height:26px;position:relative;z-index:1}
+  .brand span{font-family:'Pacifico',cursive;font-size:1.3rem;line-height:1;margin:0 .25rem;position:relative;z-index:1;transform:translateY(3px)}
+  .brand .swash{position:absolute;left:0;right:0;bottom:0;height:9px;color:inherit}
+  .who{display:flex;gap:.6rem;align-items:center}
+  h1{font-family:'Fraunces',serif;font-weight:600;font-size:1.7rem;margin-bottom:.3rem}
+  .sub{color:var(--slate);margin-bottom:1.4rem;max-width:62ch}
+  h2{font-family:'Fraunces',serif;font-weight:600;font-size:1.2rem;margin-bottom:.8rem}
+  select,input{background:var(--mist);border:1px solid var(--line);border-radius:8px;color:var(--ink);font:inherit;padding:.55rem .75rem}
+  .btn{background:var(--aqua);color:#fff;border:none;border-radius:999px;font:inherit;font-weight:700;padding:.55rem 1.2rem;cursor:pointer}
+  .btn:hover{background:var(--aqua-deep)}
+  :focus-visible{outline:2px solid var(--aqua);outline-offset:2px}
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1rem;margin:1.4rem 0 2rem}
+  .stat{background:#fff;border:1px solid var(--line);border-radius:14px;padding:1rem 1.1rem;box-shadow:0 8px 22px rgba(11,52,70,.07)}
+  .stat b{display:block;font-family:'Fraunces',serif;font-size:1.6rem;color:var(--aqua-deep)}
+  .stat span{color:var(--slate);font-size:.85rem}
+  .panel{background:#fff;border:1px solid var(--line);border-radius:14px;padding:1.3rem;margin-bottom:1.4rem;box-shadow:0 8px 22px rgba(11,52,70,.06)}
+  .row{display:flex;gap:.75rem;flex-wrap:wrap;align-items:flex-end}
+  .row > div{flex:1;min-width:150px}
+  label{display:block;font-size:.85rem;color:var(--slate);margin-bottom:.3rem;font-weight:600}
+  input{width:100%}
+  table{width:100%;border-collapse:collapse;font-size:.92rem}
+  th{font-weight:600;color:var(--slate);text-align:left;padding:.5rem .6rem;border-bottom:1px solid var(--line)}
+  td{padding:.55rem .6rem;border-bottom:1px solid rgba(15,163,150,.1);vertical-align:middle}
+  td.num,th.num{text-align:right}
+  .code{color:var(--aqua-deep);font-weight:600;white-space:nowrap}
+  .empty{color:var(--slate);padding:1.4rem .6rem;text-align:center}
+  .pill{font-size:.78rem;font-weight:700;padding:.15rem .55rem;border-radius:999px}
+  .pill.paid{background:var(--mist);color:var(--good)}
+  .pill.verified{background:var(--sky);color:var(--aqua-deep)}
+  .pill.reported{background:#F4F1EE;color:var(--slate)}
+  .flash{border-radius:8px;padding:.7rem .9rem;margin-top:.9rem;font-size:.92rem;display:none}
+  .flash.show{display:block}
+  .flash.ok{background:var(--mist);color:var(--good);font-weight:600}
+  .flash.err{background:#FBEFEA;color:var(--coral);font-weight:600}
+  .note{color:var(--slate);font-size:.85rem;font-style:italic}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <a class="brand" href="/">
+      <img src="/corgi.png" alt=""><span>Fetch</span><img src="/blacklab.png" alt="">
+      <svg class="swash" viewBox="0 0 100 12" preserveAspectRatio="none" aria-hidden="true"><path d="M3 7 C 18 11.5, 30 3.5, 50 7.5 C 70 11, 82 3.5, 97 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+    </a>
+    <div class="who">
+      <label for="whoSel" style="color:var(--slate);font-size:.9rem">Property</label>
+      <select id="whoSel" onchange="load()"></select>
+    </div>
+  </header>
+
+  <h1>Property dashboard</h1>
+  <p class="sub">The demand your creators are driving, the bookings to report, and what you owe — which is only ever 10% of a completed stay. Cancellations cost nothing.</p>
+
+  <div class="stats" id="stats"></div>
+
+  <div class="panel">
+    <h2>Report a booking</h2>
+    <p class="note" style="margin-bottom:.9rem">A guest booked with a FETCH code? Log it here — takes ten seconds and keeps your statement clean.</p>
+    <div class="row">
+      <div><label for="repCode">Code</label><input id="repCode" placeholder="FETCH-XXXX-XXXX-XXX"></div>
+      <div><label for="repValue">Booking value (CAD)</label><input id="repValue" type="number" min="1" step="0.01" placeholder="1500"></div>
+      <div><label for="repDate">Booked on</label><input id="repDate" type="date"></div>
+      <div style="flex:0"><button class="btn" onclick="reportBooking()">Report</button></div>
+    </div>
+    <div class="flash" id="repFlash"></div>
+  </div>
+
+  <div class="panel">
+    <h2>Your creators, ranked by proof</h2>
+    <p class="note" style="margin-bottom:.8rem">Not follower counts. Verified bookings.</p>
+    <div id="leaderboard"></div>
+  </div>
+
+  <div class="panel">
+    <h2>Booking activity</h2>
+    <div id="activity"></div>
+  </div>
+</div>
+
+<script>
+const SB_URL = 'https://sqzuvtshebrgzivyzyif.supabase.co';
+const SB_KEY = 'sb_publishable_xbumKc7i0RuG4ARzSSB40w_jOuv0ihq';
+let sb = null;
+try { sb = supabase.createClient(SB_URL, SB_KEY); } catch(e){}
+const $ = id => document.getElementById(id);
+const money = n => '$' + Number(n).toLocaleString('en-CA',{minimumFractionDigits:2,maximumFractionDigits:2});
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const flash = (id,m,ok=true)=>{const e=$(id);e.textContent=m;e.className='flash show '+(ok?'ok':'err');setTimeout(()=>e.className='flash',5000);};
+
+let cache = null;
+async function fetchAll(){
+  const [tags, bookings, clicks, props] = await Promise.all([
+    sb.from('tags').select('*'),
+    sb.from('bookings').select('*'),
+    sb.from('clicks').select('*'),
+    sb.from('network_properties').select('*'),
+  ]);
+  for (const r of [tags,bookings,clicks,props]) if (r.error) throw r.error;
+  return { tags: tags.data, bookings: bookings.data, clicks: clicks.data, props: props.data };
+}
+
+async function init(){
+  if (!sb){ document.body.innerHTML = '<p style="padding:3rem;text-align:center">Connection unavailable. Try again shortly.</p>'; return; }
+  $('repDate').value = new Date().toISOString().slice(0,10);
+  try {
+    cache = await fetchAll();
+    const urlP = new URLSearchParams(location.search).get('p');
+    $('whoSel').innerHTML = cache.props.length
+      ? cache.props.map(p => `<option value="${p.id}" ${p.id===urlP?'selected':''}>${esc(p.name)}</option>`).join('')
+      : '<option value="">No properties yet</option>';
+    load();
+  } catch(e){ $('stats').innerHTML = '<p class="empty">Could not load: '+esc(e.message)+'</p>'; }
+}
+
+function load(){
+  const pid = $('whoSel').value;
+  if (!pid) return;
+  const myTags = cache.tags.filter(t => t.property_id === pid);
+  const codes = new Set(myTags.map(t => t.code));
+  const myBookings = cache.bookings.filter(b => codes.has(b.code));
+  const myClicks = cache.clicks.filter(c => codes.has(c.code));
+  const tagByCode = Object.fromEntries(myTags.map(t => [t.code, t]));
+
+  const month = new Date().toISOString().slice(0,7);
+  const tapsMonth = myClicks.filter(c => (c.clicked_at||'').slice(0,7) === month).length;
+  const verified = myBookings.filter(b => b.status === 'verified' || b.status === 'paid');
+  const gmv = verified.reduce((s,b)=>s+Number(b.booking_value),0);
+  const due = myBookings.filter(b => b.status === 'verified').reduce((s,b)=>s+Number(b.booking_value)*0.10,0);
+
+  $('stats').innerHTML = `
+    <div class="stat"><b>${tapsMonth}</b><span>Link taps this month</span></div>
+    <div class="stat"><b>${myBookings.length}</b><span>Bookings via creators</span></div>
+    <div class="stat"><b>${money(gmv)}</b><span>Verified direct GMV</span></div>
+    <div class="stat"><b>${money(due)}</b><span>Commission due (10%)</span></div>`;
+
+  // leaderboard by verified bookings
+  const byCreator = {};
+  myTags.forEach(t => byCreator[t.creator_handle] = byCreator[t.creator_handle] || { taps:0, bookings:0, verified:0, gmv:0 });
+  myClicks.forEach(c => { const h = tagByCode[c.code]?.creator_handle; if (h) byCreator[h].taps++; });
+  myBookings.forEach(b => {
+    const h = tagByCode[b.code]?.creator_handle; if (!h) return;
+    byCreator[h].bookings++;
+    if (b.status === 'verified' || b.status === 'paid'){ byCreator[h].verified++; byCreator[h].gmv += Number(b.booking_value); }
+  });
+  const rows = Object.entries(byCreator).sort((a,b)=> b[1].verified - a[1].verified || b[1].taps - a[1].taps);
+  $('leaderboard').innerHTML = rows.length
+    ? '<table><thead><tr><th>Creator</th><th class="num">Taps</th><th class="num">Bookings</th><th class="num">Verified stays</th><th class="num">Verified GMV</th></tr></thead><tbody>' +
+      rows.map(([h,s]) => `<tr><td>${esc(h)}</td><td class="num">${s.taps}</td><td class="num">${s.bookings}</td><td class="num">${s.verified}</td><td class="num">${money(s.gmv)}</td></tr>`).join('') + '</tbody></table>'
+    : '<div class="empty">No creators linked yet. They\'re coming.</div>';
+
+  $('activity').innerHTML = myBookings.length
+    ? '<table><thead><tr><th>Booked</th><th>Creator</th><th>Code</th><th>Status</th><th class="num">Value</th><th class="num">Your 10%</th></tr></thead><tbody>' +
+      myBookings.map(b => {
+        const s = b.status || 'reported';
+        return `<tr><td>${esc(b.booked_on||'')}</td><td>${esc(tagByCode[b.code]?.creator_handle || '—')}</td><td class="code">${esc(b.code)}</td><td><span class="pill ${s}">${s}</span></td><td class="num">${money(b.booking_value)}</td><td class="num">${money(Number(b.booking_value)*0.10)}</td></tr>`;
+      }).join('') + '</tbody></table>'
+    : '<div class="empty">No bookings yet. Report the first one above when it lands.</div>';
+}
+
+async function reportBooking(){
+  const pid = $('whoSel').value;
+  const code = $('repCode').value.trim().toUpperCase();
+  const value = parseFloat($('repValue').value);
+  if (!code) return flash('repFlash','Enter the code from the reservation.', false);
+  if (!value || value <= 0) return flash('repFlash','Enter the booking value.', false);
+  const tag = cache.tags.find(t => t.code.toUpperCase() === code);
+  if (!tag) return flash('repFlash','That code doesn\'t match any FETCH tag. Check it and try again.', false);
+  if (tag.property_id !== pid) return flash('repFlash','That code belongs to a different property.', false);
+  try {
+    const { data, error } = await sb.from('bookings').insert({
+      tag_id: tag.id, code: tag.code, booking_value: value,
+      booked_on: $('repDate').value || new Date().toISOString().slice(0,10),
+    }).select().single();
+    if (error) throw error;
+    cache.bookings.push(data);
+    $('repCode').value=''; $('repValue').value='';
+    flash('repFlash', `Reported. ${money(value)} against ${tag.creator_handle}'s code — commission is due only once the stay completes.`);
+    load();
+  } catch(e){ flash('repFlash','Could not save: '+e.message + (e.message.includes('column') ? ' — has reconcile.sql been run?' : ''), false); }
+}
+
+init();
+</script>
+</body>
+</html>

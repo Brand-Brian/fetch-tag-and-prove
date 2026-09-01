@@ -5,19 +5,19 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>FETCH — Admin</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&family=Archivo+Narrow:wght@500;600&family=Pacifico&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&family=Archivo+Narrow:wght@500;600&family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Pacifico&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   :root{
-    --ink:#12100D;
-    --paper:#0E0C0A;
-    --card:#1B1815;
-    --gold:#C79962;
-    --gold-soft:rgba(199,153,98,.35);
-    --cream:#E2D9D3;
-    --gray:#B7AFA6;
-    --good:#7FB27E;
-    --bad:#C97C62;
+    --ink:#FFFFFF;
+    --paper:#FDFEFE;
+    --card:#FFFFFF;
+    --gold:#0FA396;
+    --gold-soft:rgba(15,163,150,.25);
+    --cream:#0B3446;
+    --gray:#35566A;
+    --good:#0B8177;
+    --bad:#E2725B;
     --radius:10px;
   }
   *{box-sizing:border-box;margin:0;padding:0}
@@ -27,7 +27,7 @@
     color:var(--cream);
     font-family:'Archivo',system-ui,sans-serif;
     min-height:100vh;
-    background-image:radial-gradient(ellipse at 20% -10%, rgba(199,153,98,.06), transparent 55%);
+    background-image:radial-gradient(ellipse at 20% -10%, rgba(15,163,150,.07), transparent 55%);
   }
   .wrap{max-width:880px;margin:0 auto;padding:2rem 1.25rem 5rem}
 
@@ -54,10 +54,10 @@
   @keyframes in{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
   @media (prefers-reduced-motion:reduce){section.on{animation:none}}
 
-  h2{font-size:1.25rem;font-weight:700;margin-bottom:.35rem}
+  h2{font-family:'Fraunces',serif;font-size:1.3rem;font-weight:600;margin-bottom:.35rem}
   .sub{color:var(--gray);font-size:.92rem;margin-bottom:1.25rem;max-width:60ch}
 
-  .panel{background:var(--card);border:1px solid var(--gold-soft);border-radius:var(--radius);padding:1.25rem;margin-bottom:1.25rem}
+  .panel{background:var(--card);border:1px solid var(--gold-soft);border-radius:var(--radius);padding:1.25rem;margin-bottom:1.25rem;box-shadow:0 8px 22px rgba(11,52,70,.06)}
   .row{display:flex;gap:.75rem;flex-wrap:wrap}
   .row > *{flex:1;min-width:160px}
   label{display:block;font-family:'Archivo Narrow';font-size:.85rem;color:var(--gray);margin-bottom:.3rem}
@@ -65,9 +65,9 @@
     width:100%;background:var(--ink);border:1px solid var(--gold-soft);border-radius:6px;
     color:var(--cream);font:inherit;padding:.55rem .7rem;
   }
-  input::placeholder{color:#6f6a63}
+  input::placeholder{color:#8FA9B3}
   .btn{
-    background:var(--gold);color:var(--ink);border:none;border-radius:6px;
+    border-radius:999px;background:var(--gold);color:#fff;border:none;border-radius:6px;
     font:inherit;font-weight:700;padding:.6rem 1.1rem;cursor:pointer;margin-top:.9rem;
   }
   .btn:hover{filter:brightness(1.07)}
@@ -82,14 +82,14 @@
   .empty{color:var(--gray);padding:1.5rem .6rem;text-align:center}
 
   .totals{display:flex;gap:1rem;flex-wrap:wrap;margin-top:1rem}
-  .tot{flex:1;min-width:150px;background:var(--card);border:1px solid var(--gold-soft);border-radius:var(--radius);padding:.9rem 1rem}
-  .tot b{display:block;font-size:1.35rem;color:var(--gold)}
+  .tot{flex:1;min-width:150px;background:var(--card);border:1px solid var(--gold-soft);border-radius:var(--radius);padding:.9rem 1rem;box-shadow:0 8px 22px rgba(11,52,70,.06)}
+  .tot b{display:block;font-family:'Fraunces',serif;font-size:1.4rem;color:var(--gold)}
   .tot span{font-family:'Archivo Narrow';font-size:.82rem;color:var(--gray)}
 
   .flash{border-radius:6px;padding:.7rem .9rem;margin-top:.9rem;font-size:.92rem;display:none}
   .flash.show{display:block}
-  .flash.ok{background:rgba(127,178,126,.12);border:1px solid rgba(127,178,126,.4);color:var(--good)}
-  .flash.err{background:rgba(201,124,98,.12);border:1px solid rgba(201,124,98,.4);color:var(--bad)}
+  .flash.ok{background:#F2FBF8;border:1px solid rgba(11,129,119,.35);color:var(--good)}
+  .flash.err{background:#FBEFEA;border:1px solid rgba(226,114,91,.4);color:var(--bad)}
 
   .result{margin-top:1rem;display:none}
   .result.show{display:block}
@@ -110,7 +110,7 @@
 <div class="wrap">
 
   <header>
-    <div class="brand"><img src="/corgi-gold.png" alt=""><svg class="ln" viewBox="0 0 20 32" preserveAspectRatio="none" aria-hidden="true"><path d="M0 17 C 7 12.5, 13 21.5, 20 17" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" vector-effect="non-scaling-stroke"/></svg><span>Fetch</span><svg class="ln" viewBox="0 0 20 32" preserveAspectRatio="none" aria-hidden="true"><path d="M0 17 C 7 12.5, 13 21.5, 20 17" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" vector-effect="non-scaling-stroke"/></svg><img src="/blacklab-gold.png" alt=""></div>
+    <div class="brand"><img src="/corgi.png" alt=""><svg class="ln" viewBox="0 0 20 32" preserveAspectRatio="none" aria-hidden="true"><path d="M0 17 C 7 12.5, 13 21.5, 20 17" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" vector-effect="non-scaling-stroke"/></svg><span>Fetch</span><svg class="ln" viewBox="0 0 20 32" preserveAspectRatio="none" aria-hidden="true"><path d="M0 17 C 7 12.5, 13 21.5, 20 17" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" vector-effect="non-scaling-stroke"/></svg><img src="/blacklab.png" alt=""></div>
     <div class="mode" id="modeBadge">Demo mode — nothing is saved</div>
   </header>
   <p class="strap">Admin — the whole network from back of house. Tags, bookings, reconciliation, and everyone knocking on the door. Dashboards: <a href="/creator.html" style="color:var(--gold)">creator</a> · <a href="/property.html" style="color:var(--gold)">property</a></p>

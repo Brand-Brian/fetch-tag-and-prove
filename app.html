@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>FETCH — Tag &amp; Prove</title>
+<title>FETCH — Admin</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&family=Archivo+Narrow:wght@500;600&family=Pacifico&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -113,7 +113,7 @@
     <div class="brand"><img src="/corgi-gold.png" alt="" width="28" height="28"><span>Fetch</span><img src="/blacklab-gold.png" alt="" width="28" height="28"><svg class="swash" viewBox="0 0 100 12" preserveAspectRatio="none" aria-hidden="true"><path d="M3 7 C 18 11.5, 30 3.5, 50 7.5 C 70 11, 82 3.5, 97 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div>
     <div class="mode" id="modeBadge">Demo mode — nothing is saved</div>
   </header>
-  <p class="strap">Tag &amp; Prove. Give a creator a tracked link and a code for a property. Log the bookings that come back. Watch the proof add up. Dashboards: <a href="/creator.html" style="color:var(--gold)">creator</a> · <a href="/property.html" style="color:var(--gold)">property</a></p>
+  <p class="strap">Admin — the whole network from back of house. Tags, bookings, reconciliation, and everyone knocking on the door. Dashboards: <a href="/creator.html" style="color:var(--gold)">creator</a> · <a href="/property.html" style="color:var(--gold)">property</a></p>
 
   <nav id="nav">
     <button data-t="check" class="on">Check a video</button>
@@ -122,6 +122,7 @@
     <button data-t="proof">Proof</button>
     <button data-t="network">Network</button>
     <button data-t="reconcile">Reconcile</button>
+    <button data-t="inbox">Inbox</button>
     <button data-t="setup">Setup</button>
   </nav>
 
@@ -262,6 +263,20 @@
       <div class="flash" id="reconFlash"></div>
     </div>
     <div class="result" id="reconOut"></div>
+  </section>
+
+  <!-- INBOX -->
+  <section id="inbox">
+    <h2>Inbox</h2>
+    <p class="sub">Waitlist signups from the website and leads captured by video checks. This is the recruitment list writing itself.</p>
+    <div class="panel">
+      <h2 style="font-size:1.05rem">Waitlist</h2>
+      <div id="waitlistList"></div>
+    </div>
+    <div class="panel">
+      <h2 style="font-size:1.05rem">Video-check leads</h2>
+      <div id="leadsList"></div>
+    </div>
   </section>
 
   <!-- SETUP -->
@@ -721,6 +736,31 @@ async function markPaid(idList){
   } catch(e){ flash('reconFlash', 'Update failed: ' + e.message, false); }
 }
 
+/* ---------------- inbox ---------------- */
+async function renderInbox(){
+  // waitlist (supabase only; demo mode has none)
+  const wl = $('waitlistList'), ll = $('leadsList');
+  if (sb){
+    try {
+      const { data, error } = await sb.from('waitlist').select('*').order('created_at', {ascending:false});
+      if (error) throw error;
+      wl.innerHTML = data.length
+        ? '<table><thead><tr><th>Kind</th><th>Who</th><th>Email</th><th>Details</th><th>When</th></tr></thead><tbody>' +
+          data.map(w => `<tr><td>${esc(w.kind)}</td><td>${esc(w.name || w.handle_or_property || '')}</td><td>${esc(w.email)}</td><td>${esc([w.handle_or_property, w.region].filter(Boolean).join(' · '))}</td><td>${new Date(w.created_at).toLocaleDateString('en-CA')}</td></tr>`).join('') + '</tbody></table>'
+        : '<div class="empty">No signups yet. Share the site.</div>';
+    } catch(e){
+      wl.innerHTML = '<div class="empty">Could not load waitlist: ' + esc(e.message) + ' — has admin.sql been run in Supabase?</div>';
+    }
+  } else { wl.innerHTML = '<div class="empty">Connect Supabase to see waitlist signups.</div>'; }
+  try {
+    const leads = await dbList('leads');
+    ll.innerHTML = leads.length
+      ? '<table><thead><tr><th>Content</th><th>Creator</th><th>Note</th><th>When</th></tr></thead><tbody>' +
+        leads.map(l => `<tr><td><a href="${esc(l.content_url)}" target="_blank" rel="noopener" style="color:var(--gold)">link</a></td><td>${esc(l.creator_handle || '—')}</td><td>${esc(l.note || '')}</td><td>${new Date(l.created_at).toLocaleDateString('en-CA')}</td></tr>`).join('') + '</tbody></table>'
+      : '<div class="empty">No leads yet. Every unmatched video check lands here.</div>';
+  } catch(e){ ll.innerHTML = '<div class="empty">Could not load leads: ' + esc(e.message) + '</div>'; }
+}
+
 /* ---------------- nav & init ---------------- */
 $('nav').addEventListener('click', e => {
   const btn = e.target.closest('button'); if (!btn) return;
@@ -729,7 +769,7 @@ $('nav').addEventListener('click', e => {
 });
 
 async function refreshAll(){
-  try { await Promise.all([renderNetwork(), renderTags(), renderProof()]); }
+  try { await Promise.all([renderNetwork(), renderTags(), renderProof(), renderInbox()]); }
   catch(e){ flash('setupFlash', 'Could not load data: ' + e.message + ' — check the schema ran in Supabase.', false); }
 }
 

@@ -842,44 +842,62 @@ const DEMO_PROPS = [
   ['Alpenglow Lodge','Whistler, BC','property','https://example.com/alpenglow/book'],
   ['Saltwater House','Salt Spring Island, BC','property','https://example.com/saltwater/book'],
   ['Cedar & Tide Tours','Ucluelet, BC','tour_operator','https://example.com/cedartide/book'],
+  ['Seawind Inn','Sooke, BC','property','https://example.com/seawind/book'],
+  ['Fogline Farm Stay','Cowichan Valley, BC','property','https://example.com/fogline/book'],
+  ['Raincoast Rooms','Prince Rupert, BC','property','https://example.com/raincoast/book'],
+  ['Kettle Valley Cabins','Naramata, BC','property','https://example.com/kettle/book'],
+  ['Skookum Lodge','Squamish, BC','property','https://example.com/skookum/book'],
+  ['Inlet & Oar Guesthouse','Powell River, BC','property','https://example.com/inletoar/book'],
 ];
-const DEMO_CREATORS = ['@coastalkate','@northbyben','@saltandspray','@goldenhourgo'];
+const DEMO_CREATORS = ['@coastalkate','@northbyben','@saltandspray','@wildpacifica','@ferngully.jpg','@goldenhourgo','@vanislevibes','@thefoggyforecast','@peakbaggerpaul','@tidepooltess'];
+async function bulkInsert(table, rows){
+  if (!rows.length) return [];
+  if (sb){
+    const { data, error } = await sb.from(table).insert(rows).select();
+    if (error) throw error;
+    return data;
+  }
+  return rows.map(r => { const x = { id: crypto.randomUUID(), created_at: new Date().toISOString(), ...r }; demo[tableKey(table)].push(x); return x; });
+}
 async function seedDemo(){
   try {
-    const props = [];
-    for (const [name,region,type,url] of DEMO_PROPS)
-      props.push(await dbInsert('network_properties', { name, region, type, booking_url: url }));
-    const tags = [];
-    let n = 0;
-    for (const h of DEMO_CREATORS){
-      for (const p of [props[n % 4], props[(n+1) % 4]]){
-        const code = `FETCH-DEMO-${h.replace(/[^A-Z]/gi,'').slice(0,4).toUpperCase()}-${(n+1)}${Math.random().toString(36).slice(2,4).toUpperCase()}`;
-        tags.push(await dbInsert('tags', { creator_handle: h, property_id: p.id, code, tracked_url: p.booking_url + '?ref=' + code }));
-        n++;
+    flash('setupFlash', 'Seeding — a few seconds...');
+    const props = await bulkInsert('network_properties', DEMO_PROPS.map(([name,region,type,url]) => ({ name, region, type, booking_url: url })));
+    const tagRows = [];
+    DEMO_CREATORS.forEach((h, i) => {
+      for (const p of [props[i], props[(i+3) % props.length]]){
+        const code = `FETCH-DEMO-${h.replace(/[^A-Z]/gi,'').slice(0,4).toUpperCase()}-${i+1}${Math.random().toString(36).slice(2,4).toUpperCase()}`;
+        tagRows.push({ creator_handle: h, property_id: p.id, code, tracked_url: p.booking_url + '?ref=' + code });
       }
-    }
+    });
+    const tags = await bulkInsert('tags', tagRows);
     const now = Date.now(), day = 86400000;
+    const clickRows = [];
     for (const t of tags){
-      const taps = 20 + Math.floor(Math.random()*60);
+      const taps = 25 + Math.floor(Math.random()*90);
       for (let i=0;i<taps;i++)
-        await dbInsert('clicks', { code: t.code, clicked_at: new Date(now - Math.random()*45*day).toISOString() });
+        clickRows.push({ code: t.code, clicked_at: new Date(now - Math.pow(Math.random(),1.4)*90*day).toISOString() });
     }
-    const statuses = ['paid','paid','verified','verified','verified','reported','reported'];
+    await bulkInsert('clicks', clickRows);
+    const statuses = ['paid','paid','paid','verified','verified','reported'];
     let s = 0;
+    const bookingRows = [];
     for (const t of tags){
-      const nb = 1 + Math.floor(Math.random()*3);
+      const nb = 1 + Math.floor(Math.random()*4);
       for (let i=0;i<nb;i++){
         const st = statuses[s++ % statuses.length];
-        const value = 600 + Math.floor(Math.random()*24)*100;
-        const booked = new Date(now - (10 + Math.random()*35)*day).toISOString().slice(0,10);
+        const value = 500 + Math.floor(Math.random()*28)*100;
+        const daysAgo = 3 + Math.random()*80;
+        const booked = new Date(now - daysAgo*day).toISOString().slice(0,10);
         const row = { tag_id: t.id, code: t.code, booking_value: value, booked_on: booked, status: st };
-        if (st !== 'reported') row.checkout_date = new Date(now - Math.random()*9*day).toISOString().slice(0,10);
-        if (st === 'paid') row.paid_at = new Date(now - Math.random()*5*day).toISOString().slice(0,10);
+        if (st !== 'reported') row.checkout_date = new Date(now - Math.max(1, daysAgo - 4 - Math.random()*6)*day).toISOString().slice(0,10);
+        if (st === 'paid') row.paid_at = row.checkout_date;
         if (!sb){ row.creator_amount = +(value*0.05).toFixed(2); row.fetch_amount = +(value*0.05).toFixed(2); }
-        await dbInsert('bookings', row);
+        bookingRows.push(row);
       }
     }
-    flash('setupFlash', 'Demo data seeded: 4 properties, 4 creators, tags, taps, and bookings in every state.');
+    await bulkInsert('bookings', bookingRows);
+    flash('setupFlash', `Demo seeded: ${props.length} properties, ${DEMO_CREATORS.length} creators, ${tags.length} tags, ${clickRows.length} taps, ${bookingRows.length} bookings over 90 days.`);
     refreshAll();
   } catch(e){ flash('setupFlash', 'Seed failed: ' + e.message, false); }
 }

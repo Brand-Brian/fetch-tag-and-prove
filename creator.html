@@ -46,6 +46,11 @@
   .flash.ok{background:var(--mist);color:var(--good);font-weight:600}
   .flash.err{background:#FBEFEA;color:var(--coral);font-weight:600}
   .note{color:var(--slate);font-size:.85rem;font-style:italic}
+  .funnel{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap}
+  .fun{background:var(--mist);border:1px solid var(--line);border-radius:12px;padding:.7rem 1.1rem;text-align:center}
+  .fun b{display:block;font-family:'Fraunces',serif;font-size:1.3rem;color:var(--aqua-deep)}
+  .fun span{color:var(--slate);font-size:.8rem}
+  .fun-arrow{color:var(--aqua);font-size:1.2rem;font-weight:700}
 </style>
 </head>
 <body>
@@ -62,6 +67,23 @@
   <p class="sub">Your links, your taps, your bookings, your money. Everything here comes from verified records — the same ones the property sees.</p>
 
   <div class="stats" id="stats"></div>
+
+  <div class="panel">
+    <h2>Your last 8 weeks</h2>
+    <p class="note" style="margin-bottom:.6rem">Wide bars are link taps; dark markers are bookings landed that week.</p>
+    <div id="trend"></div>
+  </div>
+
+  <div class="panel">
+    <h2>From tap to payout</h2>
+    <div class="funnel" id="funnel"></div>
+  </div>
+
+  <div class="panel">
+    <h2>Where your audience books</h2>
+    <div id="placePerf"></div>
+    <p class="note" id="insight" style="margin-top:.9rem"></p>
+  </div>
 
   <div class="panel">
     <h2>Your earnings</h2>
@@ -105,6 +127,35 @@ const flash = (id,m,ok=true)=>{const e=$(id);e.textContent=m;e.className='flash 
 const camt = b => Number(b.creator_amount ?? b.booking_value*0.05);
 
 let cache = null;
+
+function weekBuckets(n=8){
+  const out = []; const now = new Date();
+  for (let i=n-1;i>=0;i--){
+    const start = new Date(now); start.setDate(start.getDate() - start.getDay() - i*7);
+    out.push({ key: start.toISOString().slice(0,10), label: `${start.getMonth()+1}/${start.getDate()}`, v: 0, v2: 0 });
+  }
+  return out;
+}
+function bucketOf(buckets, dateStr){
+  for (let i=buckets.length-1;i>=0;i--) if (dateStr >= buckets[i].key) return buckets[i];
+  return null;
+}
+function barChart(buckets, color='#0FA396', color2='#0B3446'){
+  const max = Math.max(1, ...buckets.map(b=>b.v));
+  const W=480, H=110, bw=W/buckets.length;
+  let s = `<svg viewBox="0 0 ${W} ${H+22}" style="width:100%;max-width:520px">`;
+  buckets.forEach((b,i)=>{
+    const h = b.v/max*H;
+    s += `<rect x="${i*bw+6}" y="${H-h}" width="${bw-12}" height="${h}" rx="4" fill="${color}" opacity=".85"/>`;
+    if (b.v2){
+      const h2 = Math.min(H, b.v2/max*H);
+      s += `<rect x="${i*bw+bw/2-3}" y="${H-h2}" width="6" height="${h2}" rx="3" fill="${color2}"/>`;
+    }
+    s += `<text x="${i*bw+bw/2}" y="${H+15}" font-size="10" fill="#35566A" text-anchor="middle">${b.label}</text>`;
+    if (b.v) s += `<text x="${i*bw+bw/2}" y="${H-b.v/max*H-4}" font-size="10" fill="#0B8177" text-anchor="middle" font-weight="700">${b.v}</text>`;
+  });
+  return s + '</svg>';
+}
 async function fetchAll(){
   const [tags, bookings, clicks, props, content] = await Promise.all([
     sb.from('tags').select('*'),
@@ -142,12 +193,49 @@ function load(){
   const paid = myBookings.filter(b => b.status === 'paid').reduce((s,b)=>s+camt(b),0);
   const owed = myBookings.filter(b => b.status === 'verified').reduce((s,b)=>s+camt(b),0);
   const pending = myBookings.filter(b => (b.status||'reported') === 'reported').reduce((s,b)=>s+camt(b),0);
+  const conv = myClicks.length ? (myBookings.length / myClicks.length * 100) : 0;
 
   $('stats').innerHTML = `
     <div class="stat"><b>${money(paid)}</b><span>Paid to you</span></div>
     <div class="stat"><b>${money(owed)}</b><span>Verified, payout coming</span></div>
     <div class="stat"><b>${money(pending)}</b><span>Reported, awaiting stay</span></div>
-    <div class="stat"><b>${myClicks.length}</b><span>Link taps, all time</span></div>`;
+    <div class="stat"><b>${myClicks.length}</b><span>Link taps, all time</span></div>
+    <div class="stat"><b>${conv.toFixed(1)}%</b><span>Taps that become bookings</span></div>`;
+
+  // 8-week taps chart with booking markers
+  const wb = weekBuckets();
+  myClicks.forEach(cl => { const b = bucketOf(wb, (cl.clicked_at||'').slice(0,10)); if (b) b.v++; });
+  myBookings.forEach(bk => { const b = bucketOf(wb, bk.booked_on||''); if (b) b.v2++; });
+  $('trend').innerHTML = barChart(wb);
+
+  // funnel
+  const vStays = myBookings.filter(b => b.status==='verified'||b.status==='paid').length;
+  const pStays = myBookings.filter(b => b.status==='paid').length;
+  $('funnel').innerHTML = `
+    <div class="fun"><b>${myClicks.length}</b><span>Taps</span></div><div class="fun-arrow">→</div>
+    <div class="fun"><b>${myBookings.length}</b><span>Bookings</span></div><div class="fun-arrow">→</div>
+    <div class="fun"><b>${vStays}</b><span>Verified stays</span></div><div class="fun-arrow">→</div>
+    <div class="fun"><b>${pStays}</b><span>Paid out</span></div>`;
+
+  // per-place performance
+  const perf = {};
+  myTags.forEach(t => perf[t.property_id] = { name: propById[t.property_id]?.name || '—', taps:0, bookings:0, gmv:0, earn:0, codes:new Set([t.code]) });
+  myTags.forEach(t => perf[t.property_id].codes.add(t.code));
+  myClicks.forEach(cl => { const t = myTags.find(t => t.code === cl.code); if (t) perf[t.property_id].taps++; });
+  myBookings.forEach(bk => {
+    const t = myTags.find(t => t.code === bk.code); if (!t) return;
+    const p = perf[t.property_id]; p.bookings++;
+    if (bk.status==='verified'||bk.status==='paid'){ p.gmv += Number(bk.booking_value); p.earn += camt(bk); }
+  });
+  const rows = Object.values(perf).sort((a,b)=>b.earn-a.earn);
+  $('placePerf').innerHTML = rows.length
+    ? '<table><thead><tr><th>Place</th><th class="num">Taps</th><th class="num">Bookings</th><th class="num">Conv.</th><th class="num">Verified GMV</th><th class="num">You earned</th></tr></thead><tbody>' +
+      rows.map(p => `<tr><td>${esc(p.name)}</td><td class="num">${p.taps}</td><td class="num">${p.bookings}</td><td class="num">${p.taps ? (p.bookings/p.taps*100).toFixed(1) : '0.0'}%</td><td class="num">${money(p.gmv)}</td><td class="num"><b style="color:var(--aqua-deep)">${money(p.earn)}</b></td></tr>`).join('') + '</tbody></table>'
+    : '<div class="empty">No performance yet.</div>';
+  const best = rows.filter(p=>p.taps>=10 && p.bookings>0).sort((a,b)=>(b.bookings/b.taps)-(a.bookings/a.taps))[0];
+  $('insight').innerHTML = best
+    ? `Your audience converts best at <b>${esc(best.name)}</b> — ${(best.bookings/best.taps*100).toFixed(1)}% of taps become bookings. More content there is your highest-value post.`
+    : `Once taps and bookings build, FETCH shows you which places convert best for your specific audience.`;
 
   $('earnings').innerHTML = myBookings.length
     ? '<table><thead><tr><th>Booked</th><th>Place</th><th>Code</th><th>Status</th><th class="num">Your 5%</th></tr></thead><tbody>' +
@@ -171,7 +259,7 @@ function load(){
   const taggedProps = new Set(myTags.map(t => t.property_id));
   $('network').innerHTML = cache.props.length
     ? '<table><thead><tr><th>Place</th><th>Region</th><th></th></tr></thead><tbody>' +
-      cache.props.map(p => `<tr><td>${esc(p.name)}</td><td>${esc(p.region||'')}</td><td class="num">${taggedProps.has(p.id) ? '<span class="note">Linked</span>' : `<button class="btn small" onclick="grabLink('${p.id}', this)">Get my link</button>`}</td></tr>`).join('') + '</tbody></table>'
+      cache.props.map(p => `<tr><td>${esc(p.name)}</td><td>${esc(p.region||'')}</td><td class="num" style="white-space:nowrap">${taggedProps.has(p.id) ? '<span class="note">Linked</span>' : `<button class="btn small" onclick="grabLink('${p.id}', this)">Get my link</button>`} <a class="btn small" style="background:var(--mist);color:var(--aqua-deep);text-decoration:none" href="mailto:brian@brand-tastic.ca?subject=${encodeURIComponent('Hosted stay request: ' + p.name)}&body=${encodeURIComponent('Hi Brian — ' + $('whoSel').value + ' would love to arrange a hosted stay at ' + p.name + '.')}">Request stay</a></td></tr>`).join('') + '</tbody></table>'
     : '<div class="empty">The network is filling. Check back soon.</div>';
 }
 

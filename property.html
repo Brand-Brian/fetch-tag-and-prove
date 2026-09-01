@@ -49,6 +49,11 @@
   .flash.ok{background:var(--mist);color:var(--good);font-weight:600}
   .flash.err{background:#FBEFEA;color:var(--coral);font-weight:600}
   .note{color:var(--slate);font-size:.85rem;font-style:italic}
+  .funnel{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap}
+  .fun{background:var(--mist);border:1px solid var(--line);border-radius:12px;padding:.7rem 1.1rem;text-align:center}
+  .fun b{display:block;font-family:'Fraunces',serif;font-size:1.3rem;color:var(--aqua-deep)}
+  .fun span{color:var(--slate);font-size:.8rem}
+  .fun-arrow{color:var(--aqua);font-size:1.2rem;font-weight:700}
 </style>
 </head>
 <body>
@@ -65,6 +70,17 @@
   <p class="sub">The demand your creators are driving, the bookings to report, and what you owe — which is only ever 10% of a completed stay. Cancellations cost nothing.</p>
 
   <div class="stats" id="stats"></div>
+
+  <div class="panel">
+    <h2>Your last 8 weeks</h2>
+    <p class="note" style="margin-bottom:.6rem">Wide bars are link taps toward your booking page; dark markers are bookings.</p>
+    <div id="trend"></div>
+  </div>
+
+  <div class="panel">
+    <h2>From tap to verified stay</h2>
+    <div class="funnel" id="funnel"></div>
+  </div>
 
   <div class="panel">
     <h2>Report a booking</h2>
@@ -85,6 +101,18 @@
   </div>
 
   <div class="panel">
+    <h2>Stays awaiting completion</h2>
+    <p class="note" style="margin-bottom:.8rem">Reported bookings become commissions only after checkout. Until then they cost nothing.</p>
+    <div id="pending"></div>
+  </div>
+
+  <div class="panel">
+    <h2>Creators worth inviting</h2>
+    <p class="note" style="margin-bottom:.8rem">In the network, not yet linked to you — ranked by verified stays they've driven elsewhere.</p>
+    <div id="invite"></div>
+  </div>
+
+  <div class="panel">
     <h2>Booking activity</h2>
     <div id="activity"></div>
   </div>
@@ -101,6 +129,35 @@ const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt
 const flash = (id,m,ok=true)=>{const e=$(id);e.textContent=m;e.className='flash show '+(ok?'ok':'err');setTimeout(()=>e.className='flash',5000);};
 
 let cache = null;
+
+function weekBuckets(n=8){
+  const out = []; const now = new Date();
+  for (let i=n-1;i>=0;i--){
+    const start = new Date(now); start.setDate(start.getDate() - start.getDay() - i*7);
+    out.push({ key: start.toISOString().slice(0,10), label: `${start.getMonth()+1}/${start.getDate()}`, v: 0, v2: 0 });
+  }
+  return out;
+}
+function bucketOf(buckets, dateStr){
+  for (let i=buckets.length-1;i>=0;i--) if (dateStr >= buckets[i].key) return buckets[i];
+  return null;
+}
+function barChart(buckets, color='#0FA396', color2='#0B3446'){
+  const max = Math.max(1, ...buckets.map(b=>b.v));
+  const W=480, H=110, bw=W/buckets.length;
+  let s = `<svg viewBox="0 0 ${W} ${H+22}" style="width:100%;max-width:520px">`;
+  buckets.forEach((b,i)=>{
+    const h = b.v/max*H;
+    s += `<rect x="${i*bw+6}" y="${H-h}" width="${bw-12}" height="${h}" rx="4" fill="${color}" opacity=".85"/>`;
+    if (b.v2){
+      const h2 = Math.min(H, b.v2/max*H);
+      s += `<rect x="${i*bw+bw/2-3}" y="${H-h2}" width="6" height="${h2}" rx="3" fill="${color2}"/>`;
+    }
+    s += `<text x="${i*bw+bw/2}" y="${H+15}" font-size="10" fill="#35566A" text-anchor="middle">${b.label}</text>`;
+    if (b.v) s += `<text x="${i*bw+bw/2}" y="${H-b.v/max*H-4}" font-size="10" fill="#0B8177" text-anchor="middle" font-weight="700">${b.v}</text>`;
+  });
+  return s + '</svg>';
+}
 async function fetchAll(){
   const [tags, bookings, clicks, props] = await Promise.all([
     sb.from('tags').select('*'),
@@ -140,11 +197,47 @@ function load(){
   const gmv = verified.reduce((s,b)=>s+Number(b.booking_value),0);
   const due = myBookings.filter(b => b.status === 'verified').reduce((s,b)=>s+Number(b.booking_value)*0.10,0);
 
+  const otaSaved = gmv * 0.15;   // 25% OTA toll vs FETCH's 10%
   $('stats').innerHTML = `
     <div class="stat"><b>${tapsMonth}</b><span>Link taps this month</span></div>
     <div class="stat"><b>${myBookings.length}</b><span>Bookings via creators</span></div>
     <div class="stat"><b>${money(gmv)}</b><span>Verified direct GMV</span></div>
-    <div class="stat"><b>${money(due)}</b><span>Commission due (10%)</span></div>`;
+    <div class="stat"><b>${money(due)}</b><span>Commission due (10%)</span></div>
+    <div class="stat"><b style="color:var(--good)">${money(otaSaved)}</b><span>Saved vs a 25% OTA toll</span></div>`;
+
+  // 8-week trend: taps + bookings
+  const wb = weekBuckets();
+  myClicks.forEach(cl => { const b = bucketOf(wb, (cl.clicked_at||'').slice(0,10)); if (b) b.v++; });
+  myBookings.forEach(bk => { const b = bucketOf(wb, bk.booked_on||''); if (b) b.v2++; });
+  $('trend').innerHTML = barChart(wb);
+
+  // funnel
+  $('funnel').innerHTML = `
+    <div class="fun"><b>${myClicks.length}</b><span>Taps</span></div><div class="fun-arrow">→</div>
+    <div class="fun"><b>${myBookings.length}</b><span>Bookings</span></div><div class="fun-arrow">→</div>
+    <div class="fun"><b>${verified.length}</b><span>Verified stays</span></div>`;
+
+  // pending stays (reported, awaiting completion)
+  const pendingRows = myBookings.filter(b => (b.status||'reported') === 'reported');
+  $('pending').innerHTML = pendingRows.length
+    ? '<table><thead><tr><th>Booked</th><th>Creator</th><th>Code</th><th class="num">Value</th></tr></thead><tbody>' +
+      pendingRows.map(b => `<tr><td>${esc(b.booked_on||'')}</td><td>${esc(tagByCode[b.code]?.creator_handle || '—')}</td><td class="code">${esc(b.code)}</td><td class="num">${money(b.booking_value)}</td></tr>`).join('') + '</tbody></table>'
+    : '<div class="empty">No stays awaiting completion.</div>';
+
+  // invite creators: in the network, not yet linked here, ranked by global verified stays
+  const linked = new Set(myTags.map(t => t.creator_handle));
+  const global = {};
+  cache.tags.forEach(t => global[t.creator_handle] = global[t.creator_handle] || { verified:0 });
+  cache.bookings.forEach(b => {
+    const h = cache.tags.find(t => t.code === b.code)?.creator_handle;
+    if (h && (b.status==='verified'||b.status==='paid')) global[h].verified++;
+  });
+  const invitees = Object.entries(global).filter(([h]) => !linked.has(h)).sort((a,b)=>b[1].verified-a[1].verified).slice(0,6);
+  const propName = cache.props.find(x => x.id === pid)?.name || '';
+  $('invite').innerHTML = invitees.length
+    ? '<table><thead><tr><th>Creator</th><th class="num">Verified stays network-wide</th><th></th></tr></thead><tbody>' +
+      invitees.map(([h,g]) => `<tr><td>${esc(h)}</td><td class="num">${g.verified}</td><td class="num"><a class="btn small" style="text-decoration:none" href="mailto:brian@brand-tastic.ca?subject=${encodeURIComponent('Creator invite: ' + h + ' for ' + propName)}&body=${encodeURIComponent('Hi Brian — ' + propName + ' would like to invite ' + h + ' to collaborate. Open to a hosted stay or boosted commission.')}">Invite</a></td></tr>`).join('') + '</tbody></table>'
+    : '<div class="empty">Every creator in the network is already linked to you.</div>';
 
   // leaderboard by verified bookings
   const byCreator = {};
@@ -157,8 +250,8 @@ function load(){
   });
   const rows = Object.entries(byCreator).sort((a,b)=> b[1].verified - a[1].verified || b[1].taps - a[1].taps);
   $('leaderboard').innerHTML = rows.length
-    ? '<table><thead><tr><th>Creator</th><th class="num">Taps</th><th class="num">Bookings</th><th class="num">Verified stays</th><th class="num">Verified GMV</th></tr></thead><tbody>' +
-      rows.map(([h,s]) => `<tr><td>${esc(h)}</td><td class="num">${s.taps}</td><td class="num">${s.bookings}</td><td class="num">${s.verified}</td><td class="num">${money(s.gmv)}</td></tr>`).join('') + '</tbody></table>'
+    ? '<table><thead><tr><th>Creator</th><th class="num">Taps</th><th class="num">Bookings</th><th class="num">Conv.</th><th class="num">Verified stays</th><th class="num">Verified GMV</th><th class="num">Their earnings</th></tr></thead><tbody>' +
+      rows.map(([h,s]) => `<tr><td>${esc(h)}</td><td class="num">${s.taps}</td><td class="num">${s.bookings}</td><td class="num">${s.taps ? (s.bookings/s.taps*100).toFixed(1) : '0.0'}%</td><td class="num">${s.verified}</td><td class="num">${money(s.gmv)}</td><td class="num">${money(s.gmv*0.05)}</td></tr>`).join('') + '</tbody></table>'
     : '<div class="empty">No creators linked yet. They\'re coming.</div>';
 
   $('activity').innerHTML = myBookings.length

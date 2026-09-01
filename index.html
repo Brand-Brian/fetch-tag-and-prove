@@ -3,581 +3,415 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>FETCH — Tag &amp; Prove</title>
+<title>FETCH — Travel content that pays</title>
+<meta name="description" content="FETCH makes travel content bookable. Creators earn 5% cash on verified direct bookings. Properties pay 10% instead of 30%.">
+<link rel="canonical" href="https://fetch-and-prove.netlify.app/">
+<meta name="theme-color" content="#0FA396">
+<link rel="icon" type="image/png" href="/corgi.png">
+<link rel="apple-touch-icon" href="/corgi.png">
+
+<!-- Open Graph (Facebook, Instagram DMs, LinkedIn, WhatsApp) -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="FETCH">
+<meta property="og:title" content="FETCH — Travel content that pays">
+<meta property="og:description" content="The trips you inspire should pay you back. Creators earn 5% cash on verified direct bookings. Properties get demand at 10% instead of 30%.">
+<meta property="og:url" content="https://fetch-and-prove.netlify.app/">
+<meta property="og:image" content="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&h=630&q=80">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Turquoise water meeting a white sand beach">
+
+<!-- Twitter / X -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="FETCH — Travel content that pays">
+<meta name="twitter:description" content="The trips you inspire should pay you back. Creators earn cash on verified direct bookings.">
+<meta name="twitter:image" content="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&h=630&q=80">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&family=Archivo+Narrow:wght@500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   :root{
-    --ink:#12100D;
-    --paper:#0E0C0A;
-    --card:#1B1815;
-    --gold:#C79962;
-    --gold-soft:rgba(199,153,98,.35);
-    --cream:#E2D9D3;
-    --gray:#B7AFA6;
-    --good:#7FB27E;
-    --bad:#C97C62;
-    --radius:10px;
+    --paper:#FFFFFF;
+    --mist:#F2FBF8;          /* seafoam tint */
+    --sky:#EAF7FB;           /* pale aqua-blue tint */
+    --ink:#0B3446;           /* deep ocean */
+    --slate:#4A6B78;         /* muted blue-gray text */
+    --aqua:#0FA396;          /* aquamarine — CTAs */
+    --aqua-deep:#0B8177;
+    --seafoam:#8FE0CD;
+    --line:rgba(15,163,150,.22);
+    --good:#0B8177;
+    --coral:#E2725B;
   }
   *{box-sizing:border-box;margin:0;padding:0}
-  html{font-size:16px}
-  body{
-    background:var(--paper);
-    color:var(--cream);
-    font-family:'Archivo',system-ui,sans-serif;
-    min-height:100vh;
-    background-image:radial-gradient(ellipse at 20% -10%, rgba(199,153,98,.06), transparent 55%);
+  html{scroll-behavior:smooth}
+  @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+  body{background:var(--paper);color:var(--ink);font-family:'Archivo',system-ui,sans-serif;line-height:1.55}
+  img{display:block;max-width:100%}
+  a{color:inherit}
+
+  /* ---------- nav ---------- */
+  .nav{
+    position:fixed;inset:0 0 auto 0;z-index:50;display:flex;align-items:center;justify-content:space-between;
+    padding:.85rem 5vw;background:rgba(255,255,255,.82);backdrop-filter:blur(10px);
+    border-bottom:1px solid rgba(255,255,255,.4);
   }
-  .wrap{max-width:880px;margin:0 auto;padding:2rem 1.25rem 5rem}
-
-  header{display:flex;align-items:baseline;justify-content:space-between;gap:1rem;margin-bottom:.4rem}
-  .brand{font-weight:800;font-size:1.6rem;letter-spacing:.14em;color:var(--gold)}
-  .mode{font-family:'Archivo Narrow';font-size:.85rem;color:var(--gray)}
-  .mode strong{color:var(--gold);font-weight:600}
-  .strap{color:var(--gray);font-size:.95rem;max-width:56ch;margin-bottom:1.75rem}
-
-  nav{display:flex;gap:.4rem;border-bottom:1px solid var(--gold-soft);margin-bottom:1.75rem;flex-wrap:wrap}
-  nav button{
-    background:none;border:none;color:var(--gray);font:inherit;font-weight:600;
-    padding:.65rem .9rem;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;
-  }
-  nav button:hover{color:var(--cream)}
-  nav button.on{color:var(--gold);border-bottom-color:var(--gold)}
-  nav button:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
-
-  section{display:none}
-  section.on{display:block;animation:in .18s ease-out}
-  @keyframes in{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
-  @media (prefers-reduced-motion:reduce){section.on{animation:none}}
-
-  h2{font-size:1.25rem;font-weight:700;margin-bottom:.35rem}
-  .sub{color:var(--gray);font-size:.92rem;margin-bottom:1.25rem;max-width:60ch}
-
-  .panel{background:var(--card);border:1px solid var(--gold-soft);border-radius:var(--radius);padding:1.25rem;margin-bottom:1.25rem}
-  .row{display:flex;gap:.75rem;flex-wrap:wrap}
-  .row > *{flex:1;min-width:160px}
-  label{display:block;font-family:'Archivo Narrow';font-size:.85rem;color:var(--gray);margin-bottom:.3rem}
-  input,select{
-    width:100%;background:var(--ink);border:1px solid var(--gold-soft);border-radius:6px;
-    color:var(--cream);font:inherit;padding:.55rem .7rem;
-  }
-  input::placeholder{color:#6f6a63}
+  .wordmark{font-weight:700;letter-spacing:.16em;font-size:1.25rem;color:var(--aqua);text-decoration:none}
+  .nav-links{display:flex;gap:1.5rem;align-items:center;font-size:.95rem}
+  .nav-links a{text-decoration:none;color:var(--ink);opacity:.85;font-weight:500}
+  .nav-links a:hover{opacity:1;color:var(--aqua)}
   .btn{
-    background:var(--gold);color:var(--ink);border:none;border-radius:6px;
-    font:inherit;font-weight:700;padding:.6rem 1.1rem;cursor:pointer;margin-top:.9rem;
+    display:inline-block;background:var(--aqua);color:#fff;font-weight:700;text-decoration:none;
+    padding:.7rem 1.4rem;border-radius:999px;border:none;font:inherit;font-weight:700;cursor:pointer;
+    box-shadow:0 6px 18px rgba(15,163,150,.28);
   }
-  .btn:hover{filter:brightness(1.07)}
-  .btn.ghost{background:none;border:1px solid var(--gold-soft);color:var(--gold)}
-  .btn.small{padding:.3rem .7rem;font-size:.85rem;margin:0}
+  .btn:hover{background:var(--aqua-deep)}
+  .btn.line{background:rgba(255,255,255,.92);color:var(--aqua-deep);border:1.5px solid var(--aqua);box-shadow:none}
+  .btn.line:hover{background:var(--mist)}
+  :focus-visible{outline:2px solid var(--aqua);outline-offset:3px}
 
-  table{width:100%;border-collapse:collapse;font-size:.92rem}
-  th{font-family:'Archivo Narrow';font-weight:600;color:var(--gray);text-align:left;padding:.5rem .6rem;border-bottom:1px solid var(--gold-soft)}
-  td{padding:.55rem .6rem;border-bottom:1px solid rgba(199,153,98,.12);vertical-align:top}
-  td.num,th.num{text-align:right}
-  .code{font-family:'Archivo Narrow';color:var(--gold);letter-spacing:.03em;white-space:nowrap}
-  .empty{color:var(--gray);padding:1.5rem .6rem;text-align:center}
+  /* ---------- hero ---------- */
+  .hero{position:relative;min-height:92vh;display:flex;align-items:flex-end;overflow:hidden}
+  .hero img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+  .hero::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg, rgba(11,52,70,.18), rgba(11,52,70,.05) 40%, rgba(255,255,255,.94) 96%)}
+  .hero-inner{position:relative;z-index:2;padding:0 5vw 7.5vh;max-width:1100px}
+  .kicker{color:var(--aqua-deep);font-weight:700;letter-spacing:.04em;margin-bottom:1rem}
+  h1{font-family:'Fraunces',serif;font-weight:600;font-size:clamp(2.4rem, 6vw, 4.6rem);line-height:1.06;max-width:16ch;color:var(--ink)}
+  h1 em{font-style:italic;color:var(--aqua)}
+  .hero p{margin:1.25rem 0 1.75rem;font-size:1.15rem;color:var(--slate);max-width:52ch}
+  .hero-ctas{display:flex;gap:.9rem;flex-wrap:wrap}
+  .hero-credit{position:absolute;right:1rem;bottom:.8rem;z-index:2;font-size:.7rem;color:rgba(11,52,70,.4)}
 
-  .totals{display:flex;gap:1rem;flex-wrap:wrap;margin-top:1rem}
-  .tot{flex:1;min-width:150px;background:var(--card);border:1px solid var(--gold-soft);border-radius:var(--radius);padding:.9rem 1rem}
-  .tot b{display:block;font-size:1.35rem;color:var(--gold)}
-  .tot span{font-family:'Archivo Narrow';font-size:.82rem;color:var(--gray)}
+  /* ---------- sections ---------- */
+  section{padding:5.5rem 5vw}
+  .tight{max-width:1160px;margin:0 auto}
+  h2{font-family:'Fraunces',serif;font-weight:600;font-size:clamp(1.8rem,3.6vw,2.7rem);line-height:1.12;max-width:22ch;color:var(--ink)}
+  .lede{color:var(--slate);font-size:1.1rem;max-width:58ch;margin-top:.9rem}
 
-  .flash{border-radius:6px;padding:.7rem .9rem;margin-top:.9rem;font-size:.92rem;display:none}
-  .flash.show{display:block}
-  .flash.ok{background:rgba(127,178,126,.12);border:1px solid rgba(127,178,126,.4);color:var(--good)}
-  .flash.err{background:rgba(201,124,98,.12);border:1px solid rgba(201,124,98,.4);color:var(--bad)}
+  /* reel rail */
+  .rail-wrap{background:linear-gradient(180deg, var(--paper), var(--mist) 30%, var(--mist) 85%, var(--paper))}
+  .rail{display:flex;gap:1.1rem;overflow-x:auto;padding:2.2rem .2rem 1.4rem;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch}
+  .rail::-webkit-scrollbar{height:8px}
+  .rail::-webkit-scrollbar-thumb{background:var(--seafoam);border-radius:4px}
+  .reel{
+    position:relative;flex:0 0 240px;aspect-ratio:9/15.5;border-radius:18px;overflow:hidden;
+    scroll-snap-align:start;background:var(--sky);
+    box-shadow:0 14px 34px rgba(11,52,70,.16);
+  }
+  .reel img{width:100%;height:100%;object-fit:cover}
+  .reel::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg, rgba(11,52,70,.32), transparent 30%, transparent 55%, rgba(11,52,70,.82))}
+  .reel .handle{position:absolute;top:.8rem;left:.9rem;z-index:2;font-weight:600;font-size:.9rem;color:#fff;text-shadow:0 1px 6px rgba(11,52,70,.5)}
+  .reel .badge{
+    position:absolute;top:.75rem;right:.75rem;z-index:2;background:var(--seafoam);color:var(--ink);
+    font-size:.72rem;font-weight:700;padding:.25rem .6rem;border-radius:999px;
+  }
+  .reel .place{position:absolute;left:.9rem;right:.9rem;bottom:2.55rem;z-index:2;font-family:'Fraunces',serif;font-size:1.05rem;line-height:1.25;color:#fff}
+  .reel .earn{position:absolute;left:.9rem;bottom:.85rem;z-index:2;font-size:.8rem;font-weight:700;color:var(--seafoam)}
 
-  .result{margin-top:1rem;display:none}
-  .result.show{display:block}
-  .result .panel{border-color:var(--gold)}
-  .split{display:flex;gap:1rem;flex-wrap:wrap;margin-top:.6rem}
-  .split div{flex:1;min-width:120px}
-  .split b{color:var(--gold);font-size:1.15rem}
-  .split span{font-family:'Archivo Narrow';font-size:.82rem;color:var(--gray);display:block}
+  /* how it works */
+  .steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1.2rem;margin-top:2.4rem}
+  .step{background:#fff;border:1px solid var(--line);border-radius:16px;padding:1.6rem;box-shadow:0 10px 26px rgba(11,52,70,.07)}
+  .step .n{font-family:'Fraunces',serif;font-size:2rem;color:var(--aqua)}
+  .step h3{font-size:1.15rem;margin:.6rem 0 .45rem;color:var(--ink)}
+  .step p{color:var(--slate);font-size:.97rem}
 
-  .copyable{display:flex;gap:.5rem;align-items:center;background:var(--ink);border:1px solid var(--gold-soft);border-radius:6px;padding:.5rem .7rem;margin-top:.5rem}
-  .copyable code{flex:1;font-family:'Archivo Narrow';color:var(--cream);word-break:break-all;font-size:.9rem}
+  /* audience split */
+  .split2{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:1.4rem;margin-top:2.4rem}
+  .aud{position:relative;border-radius:20px;overflow:hidden;min-height:520px;display:flex;align-items:flex-end;box-shadow:0 18px 40px rgba(11,52,70,.16)}
+  .aud img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+  .aud::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg, rgba(11,52,70,.08), rgba(11,52,70,.3) 45%, rgba(11,52,70,.9))}
+  .aud-inner{position:relative;z-index:2;padding:2rem 1.8rem;color:#fff}
+  .aud h3{font-family:'Fraunces',serif;font-size:1.7rem;margin-bottom:.6rem}
+  .aud ul{list-style:none;margin:.4rem 0 1.2rem}
+  .aud li{padding-left:1.4rem;position:relative;margin:.5rem 0}
+  .aud li::before{content:'✓';position:absolute;left:0;color:var(--seafoam);font-weight:700}
+  .aud .big{font-family:'Fraunces',serif;color:var(--seafoam);font-size:1.25rem;margin-bottom:.9rem}
 
-  footer{margin-top:3rem;color:var(--gray);font-size:.82rem}
-  footer b{color:var(--gold)}
+  /* network band */
+  .band{padding:0}
+  .band .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:4px}
+  .tile{position:relative;aspect-ratio:4/3.4;overflow:hidden}
+  .tile img{width:100%;height:100%;object-fit:cover;transition:transform .5s ease}
+  .tile:hover img{transform:scale(1.04)}
+  @media (prefers-reduced-motion:reduce){.tile img{transition:none}.tile:hover img{transform:none}}
+  .tile::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg, transparent 45%, rgba(11,52,70,.78))}
+  .tile span{position:absolute;left:1rem;bottom:.85rem;z-index:2;font-family:'Fraunces',serif;font-size:1.05rem;color:#fff}
+  .band-note{text-align:center;padding:2.2rem 5vw;color:var(--slate)}
+  .band-note b{color:var(--aqua-deep)}
+
+  /* math strip */
+  .math{background:linear-gradient(120deg, var(--sky), var(--mist));border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+  .math .tight{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:1.6rem;text-align:center}
+  .math b{display:block;font-family:'Fraunces',serif;font-size:2.1rem;color:var(--aqua-deep)}
+  .math span{color:var(--slate);font-size:.92rem}
+  .math .strike b{color:var(--slate);text-decoration:line-through;text-decoration-color:var(--coral)}
+
+  /* waitlist */
+  .join-wrap{background:linear-gradient(180deg, var(--paper), var(--sky))}
+  .forms{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:1.4rem;margin-top:2.4rem}
+  .form{background:#fff;border:1px solid var(--line);border-radius:16px;padding:1.8rem;box-shadow:0 12px 30px rgba(11,52,70,.08)}
+  .form h3{font-family:'Fraunces',serif;font-size:1.45rem;margin-bottom:.35rem;color:var(--ink)}
+  .form p{color:var(--slate);font-size:.95rem;margin-bottom:1.1rem}
+  .form label{display:block;font-size:.85rem;color:var(--slate);margin:.75rem 0 .3rem;font-weight:600}
+  .form input{width:100%;background:var(--mist);border:1px solid var(--line);border-radius:8px;color:var(--ink);font:inherit;padding:.6rem .75rem}
+  .form input::placeholder{color:#8FA9B3}
+  .form .btn{margin-top:1.2rem;width:100%}
+  .msg{margin-top:.9rem;font-size:.92rem;display:none}
+  .msg.show{display:block}
+  .msg.ok{color:var(--good);font-weight:600}
+  .msg.err{color:var(--coral);font-weight:600}
+
+  /* mascots */
+  .mascots{display:flex;gap:.6rem;margin-bottom:.5rem}
+  .mascots img{width:86px;height:86px}
+  .mascot-note{color:var(--slate);font-size:.85rem;margin-bottom:1.4rem;font-style:italic}
+
+  footer{padding:3rem 5vw 4rem;color:var(--slate);font-size:.9rem;border-top:1px solid var(--line);background:var(--sky)}
+  .foot{display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap;max-width:1160px;margin:0 auto}
+  footer a{color:var(--aqua-deep);text-decoration:none;font-weight:600}
+
+  @media (max-width:640px){
+    .nav-links a.hide-sm{display:none}
+    .hero{min-height:86vh}
+    section{padding:4rem 5vw}
+    .aud{min-height:440px}
+  }
 </style>
 </head>
 <body>
-<div class="wrap">
 
-  <header>
-    <div class="brand">FETCH</div>
-    <div class="mode" id="modeBadge">Demo mode — nothing is saved</div>
-  </header>
-  <p class="strap">Tag &amp; Prove. Give a creator a tracked link and a code for a property. Log the bookings that come back. Watch the proof add up.</p>
+<nav class="nav">
+  <a class="wordmark" href="#top">FETCH</a>
+  <div class="nav-links">
+    <a href="#how" class="hide-sm">How it works</a>
+    <a href="#creators" class="hide-sm">Creators</a>
+    <a href="#properties" class="hide-sm">Properties</a>
+    <a class="btn line" href="/app.html">Live demo</a>
+  </div>
+</nav>
 
-  <nav id="nav">
-    <button data-t="check" class="on">Check a video</button>
-    <button data-t="tag">Create a tag</button>
-    <button data-t="book">Log a booking</button>
-    <button data-t="proof">Proof</button>
-    <button data-t="network">Network</button>
-    <button data-t="setup">Setup</button>
-  </nav>
-
-  <!-- CHECK A VIDEO -->
-  <section id="check" class="on">
-    <h2>Is this video bookable?</h2>
-    <p class="sub">Paste any Instagram Reel or TikTok link. If the creator is in the network, you get their tracked link and code on the spot. If not, it's saved as a lead.</p>
-    <div class="panel">
-      <label for="videoUrl">Video link</label>
-      <input id="videoUrl" placeholder="https://www.instagram.com/reel/... or https://www.tiktok.com/@handle/video/...">
-      <button class="btn" onclick="checkVideo()">Check it</button>
-      <div class="flash" id="checkFlash"></div>
+<!-- HERO -->
+<header class="hero" id="top">
+  <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=2000&q=80" alt="Turquoise water meeting a white sand beach" fetchpriority="high">
+  <div class="hero-inner">
+    <p class="kicker">Travel content inspires millions of trips</p>
+    <h1>The trips you inspire should <em>pay you back</em>.</h1>
+    <p>FETCH makes travel content bookable. Creators earn real cash on the direct bookings their content drives. Properties get demand at a third of the OTA toll — and keep their guest.</p>
+    <div class="hero-ctas">
+      <a class="btn" href="#creators">I'm a creator</a>
+      <a class="btn line" href="#properties">I run a property</a>
     </div>
-    <div class="result" id="checkResult"></div>
-  </section>
+  </div>
+  <span class="hero-credit">Photography via Unsplash</span>
+</header>
 
-  <!-- CREATE TAG -->
-  <section id="tag">
-    <h2>Create a tag</h2>
-    <p class="sub">One tag pairs one creator with one property. It generates the code and the tracked link they'll use.</p>
-    <div class="panel">
-      <div class="row">
-        <div>
-          <label for="tagCreator">Creator handle</label>
-          <input id="tagCreator" placeholder="@coastalkate">
-        </div>
-        <div>
-          <label for="tagProperty">Property</label>
-          <select id="tagProperty"></select>
-        </div>
-      </div>
-      <label for="tagContent" style="margin-top:.75rem">Content link (optional)</label>
-      <input id="tagContent" placeholder="Link to the Reel or TikTok, if it exists already">
-      <button class="btn" onclick="createTag()">Create tag</button>
-      <div class="flash" id="tagFlash"></div>
+<!-- REEL RAIL -->
+<div class="rail-wrap">
+<section id="bookable" style="padding-bottom:3.5rem">
+  <div class="tight">
+    <h2>What if every post was a storefront?</h2>
+    <p class="lede">This is what content looks like inside the FETCH network. Tagged, trackable, and bookable — with the creator earning on every verified stay.</p>
+  </div>
+  <div class="rail" aria-label="Examples of bookable creator content">
+    <div class="reel">
+      <img loading="lazy" src="https://images.unsplash.com/photo-1470770841072-f978cf4d019e?auto=format&fit=crop&w=700&q=80" alt="Lakeside cabin at dusk">
+      <span class="handle">@coastalkate</span><span class="badge">Bookable</span>
+      <span class="place">Storm-watching cabin, Tofino</span>
+      <span class="earn">Earned $412 this month</span>
     </div>
-    <div class="result" id="tagResult"></div>
-
-    <div class="panel">
-      <h2 style="font-size:1.05rem">Existing tags</h2>
-      <div id="tagList"></div>
+    <div class="reel">
+      <img loading="lazy" src="https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=700&q=80" alt="Kayaking on clear ocean water">
+      <span class="handle">@saltandspray</span><span class="badge">Bookable</span>
+      <span class="place">Sea kayak tour, Broken Group</span>
+      <span class="earn">Earned $198 this month</span>
     </div>
-  </section>
-
-  <!-- LOG BOOKING -->
-  <section id="book">
-    <h2>Log a booking</h2>
-    <p class="sub">A property reports a code was used. Enter it with the booking value and the split is calculated instantly.</p>
-    <div class="panel">
-      <div class="row">
-        <div>
-          <label for="bookCode">Code</label>
-          <input id="bookCode" placeholder="FETCH-KATE-WICK-7Q2">
-        </div>
-        <div>
-          <label for="bookValue">Booking value (CAD)</label>
-          <input id="bookValue" type="number" min="1" step="0.01" placeholder="1500">
-        </div>
-        <div>
-          <label for="bookDate">Booked on</label>
-          <input id="bookDate" type="date">
-        </div>
-      </div>
-      <button class="btn" onclick="logBooking()">Log booking</button>
-      <div class="flash" id="bookFlash"></div>
+    <div class="reel">
+      <img loading="lazy" src="https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&w=700&q=80" alt="Canoe on a turquoise mountain lake">
+      <span class="handle">@wildpacifica</span><span class="badge">Bookable</span>
+      <span class="place">Alpine lake day trip, BC</span>
+      <span class="earn">Earned $340 this month</span>
     </div>
-    <div class="result" id="bookResult"></div>
-  </section>
-
-  <!-- PROOF -->
-  <section id="proof">
-    <h2>Proof</h2>
-    <p class="sub">Every verified booking, who earned what, and the running totals. This table is the pilot's answer.</p>
-    <div class="totals" id="proofTotals"></div>
-    <div class="panel" style="margin-top:1.25rem">
-      <div id="proofTable"></div>
-      <button class="btn ghost" onclick="exportCSV()">Download CSV</button>
+    <div class="reel">
+      <img loading="lazy" src="https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=700&q=80" alt="Mountains under a starry sky">
+      <span class="handle">@northbyben</span><span class="badge">Bookable</span>
+      <span class="place">Backcountry lodge, Whistler</span>
+      <span class="earn">Earned $285 this month</span>
     </div>
-  </section>
-
-  <!-- NETWORK -->
-  <section id="network">
-    <h2>Network</h2>
-    <p class="sub">The properties and tour operators in the pilot. Their booking link is where tracked links point.</p>
-    <div class="panel">
-      <div class="row">
-        <div>
-          <label for="propName">Name</label>
-          <input id="propName" placeholder="Wickaninnish Inn">
-        </div>
-        <div>
-          <label for="propRegion">Region</label>
-          <input id="propRegion" placeholder="Tofino, BC">
-        </div>
-        <div>
-          <label for="propType">Type</label>
-          <select id="propType">
-            <option value="property">Property</option>
-            <option value="tour_operator">Tour operator</option>
-            <option value="dmc">DMC</option>
-          </select>
-        </div>
-      </div>
-      <div class="row" style="margin-top:.75rem">
-        <div>
-          <label for="propUrl">Booking link</label>
-          <input id="propUrl" placeholder="https://theirsite.com/book">
-        </div>
-        <div>
-          <label for="propContact">Contact (name or email)</label>
-          <input id="propContact" placeholder="Jamie — jamie@theirsite.com">
-        </div>
-      </div>
-      <button class="btn" onclick="addProperty()">Add to network</button>
-      <div class="flash" id="propFlash"></div>
+    <div class="reel">
+      <img loading="lazy" src="https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=700&q=80" alt="Sunlight through tall coastal forest">
+      <span class="handle">@ferngully.jpg</span><span class="badge">Bookable</span>
+      <span class="place">Rainforest treehouse stay</span>
+      <span class="earn">Earned $156 this month</span>
     </div>
-    <div class="panel">
-      <div id="propList"></div>
+    <div class="reel">
+      <img loading="lazy" src="https://images.unsplash.com/photo-1493246507139-91e8fad9978e?auto=format&fit=crop&w=700&q=80" alt="Still mountain lake at golden hour">
+      <span class="handle">@goldenhourgo</span><span class="badge">Bookable</span>
+      <span class="place">Floating lodge, Great Bear</span>
+      <span class="earn">Earned $520 this month</span>
     </div>
-  </section>
-
-  <!-- SETUP -->
-  <section id="setup">
-    <h2>Setup</h2>
-    <p class="sub">Paste your Supabase project details to switch from demo mode to saved data. Run schema.sql in Supabase first (SQL Editor → paste → Run).</p>
-    <div class="panel">
-      <label for="sbUrl">Supabase project URL</label>
-      <input id="sbUrl" placeholder="https://xxxx.supabase.co">
-      <label for="sbKey" style="margin-top:.75rem">Supabase anon key</label>
-      <input id="sbKey" placeholder="eyJ...">
-      <button class="btn" onclick="saveSetup()">Connect</button>
-      <button class="btn ghost" onclick="clearSetup()" style="margin-left:.5rem">Disconnect</button>
-      <div class="flash" id="setupFlash"></div>
-    </div>
-  </section>
-
-  <footer>
-    <b>Pilot tool.</b> Attribution here is property-reported codes — exactly right for Phase 0. Pixels, PMS webhooks, and payouts come after the number is proven.
-  </footer>
+  </div>
+</section>
 </div>
 
-<script>
-/* ---------------- state & storage ---------------- */
-let sb = null;                 // supabase client, null = demo mode
-let demo = { props: [], tags: [], bookings: [], leads: [] };
-
-const $ = (id) => document.getElementById(id);
-const money = (n) => '$' + Number(n).toLocaleString('en-CA', {minimumFractionDigits:2, maximumFractionDigits:2});
-const esc = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-
-function hasStorage(){ try { localStorage.setItem('_t','1'); localStorage.removeItem('_t'); return true; } catch(e){ return false; } }
-const canStore = hasStorage();
-
-function flash(id, msg, ok=true){
-  const el = $(id);
-  el.textContent = msg;
-  el.className = 'flash show ' + (ok ? 'ok' : 'err');
-  clearTimeout(el._t);
-  el._t = setTimeout(() => el.className = 'flash', 5000);
-}
-
-function setMode(){
-  $('modeBadge').innerHTML = sb ? 'Connected — data is <strong>saved</strong>' : 'Demo mode — nothing is saved';
-}
-
-/* ---------------- data layer (supabase or demo) ---------------- */
-async function dbList(table, orderCol='created_at'){
-  if (sb){
-    const { data, error } = await sb.from(table).select('*').order(orderCol, {ascending:false});
-    if (error) throw error;
-    return data;
-  }
-  return [...demo[tableKey(table)]].reverse();
-}
-async function dbInsert(table, row){
-  if (sb){
-    const { data, error } = await sb.from(table).insert(row).select().single();
-    if (error) throw error;
-    return data;
-  }
-  const r = { id: crypto.randomUUID(), created_at: new Date().toISOString(), ...row };
-  demo[tableKey(table)].push(r);
-  return r;
-}
-function tableKey(t){ return {network_properties:'props', tags:'tags', bookings:'bookings', leads:'leads'}[t]; }
-
-/* ---------------- setup ---------------- */
-function saveSetup(){
-  const url = $('sbUrl').value.trim(), key = $('sbKey').value.trim();
-  if (!url || !key) return flash('setupFlash', 'Both the URL and the anon key are needed.', false);
-  try {
-    sb = supabase.createClient(url, key);
-    if (canStore){ localStorage.setItem('fetch_sb_url', url); localStorage.setItem('fetch_sb_key', key); }
-    setMode();
-    refreshAll();
-    flash('setupFlash', 'Connected. Data now saves to Supabase.');
-  } catch(e){
-    sb = null; setMode();
-    flash('setupFlash', 'Could not connect: ' + e.message, false);
-  }
-}
-function clearSetup(){
-  sb = null;
-  if (canStore){ localStorage.removeItem('fetch_sb_url'); localStorage.removeItem('fetch_sb_key'); }
-  $('sbUrl').value = ''; $('sbKey').value = '';
-  setMode(); refreshAll();
-  flash('setupFlash', 'Disconnected. Back in demo mode.');
-}
-function loadSetup(){
-  if (!canStore) return;
-  const url = localStorage.getItem('fetch_sb_url'), key = localStorage.getItem('fetch_sb_key');
-  if (url && key){ $('sbUrl').value = url; $('sbKey').value = key; try { sb = supabase.createClient(url, key); } catch(e){ sb = null; } }
-}
-
-/* ---------------- network ---------------- */
-async function addProperty(){
-  const name = $('propName').value.trim();
-  if (!name) return flash('propFlash', 'The property needs a name.', false);
-  try {
-    await dbInsert('network_properties', {
-      name,
-      region: $('propRegion').value.trim() || null,
-      type: $('propType').value,
-      booking_url: $('propUrl').value.trim() || null,
-      contact_name: $('propContact').value.trim() || null,
-    });
-    ['propName','propRegion','propUrl','propContact'].forEach(id => $(id).value = '');
-    flash('propFlash', name + ' added to the network.');
-    refreshAll();
-  } catch(e){ flash('propFlash', 'Save failed: ' + e.message, false); }
-}
-
-async function renderNetwork(){
-  const props = await dbList('network_properties');
-  const el = $('propList');
-  if (!props.length){ el.innerHTML = '<div class="empty">No properties yet. The pilot starts with the first one you add.</div>'; }
-  else {
-    el.innerHTML = '<table><thead><tr><th>Name</th><th>Region</th><th>Type</th><th>Booking link</th><th>Contact</th></tr></thead><tbody>' +
-      props.map(p => `<tr><td>${esc(p.name)}</td><td>${esc(p.region||'')}</td><td>${esc((p.type||'').replace('_',' '))}</td><td>${p.booking_url ? `<a href="${esc(p.booking_url)}" target="_blank" rel="noopener" style="color:var(--gold)">link</a>` : ''}</td><td>${esc(p.contact_name||'')}</td></tr>`).join('') +
-      '</tbody></table>';
-  }
-  // fill tag dropdown
-  const sel = $('tagProperty');
-  sel.innerHTML = props.length
-    ? props.map(p => `<option value="${p.id}">${esc(p.name)}${p.region ? ' — ' + esc(p.region) : ''}</option>`).join('')
-    : '<option value="">Add a property in Network first</option>';
-}
-
-/* ---------------- tags ---------------- */
-function makeCode(creator, propName){
-  const clean = s => s.replace(/[^a-z0-9]/gi,'').toUpperCase();
-  const c = clean(creator).slice(0,4).padEnd(3,'X');
-  const p = clean(propName).slice(0,4).padEnd(3,'X');
-  const r = Math.random().toString(36).slice(2,5).toUpperCase();
-  return `FETCH-${c}-${p}-${r}`;
-}
-function makeTrackedUrl(bookingUrl, code){
-  if (!bookingUrl) return `https://fetch.travel/go/${code}`;   // placeholder short-link
-  const sep = bookingUrl.includes('?') ? '&' : '?';
-  return `${bookingUrl}${sep}ref=${code}&utm_source=fetch&utm_medium=creator`;
-}
-
-async function createTag(){
-  const creator = $('tagCreator').value.trim();
-  const propId = $('tagProperty').value;
-  if (!creator) return flash('tagFlash', 'The creator needs a handle.', false);
-  if (!propId) return flash('tagFlash', 'Pick a property. Add one in Network if the list is empty.', false);
-  try {
-    const props = await dbList('network_properties');
-    const prop = props.find(p => p.id === propId);
-    const code = makeCode(creator, prop.name);
-    const tracked = makeTrackedUrl(prop.booking_url, code);
-    const tag = await dbInsert('tags', {
-      creator_handle: creator.startsWith('@') ? creator : '@' + creator,
-      property_id: propId,
-      code, tracked_url: tracked,
-      content_url: $('tagContent').value.trim() || null,
-    });
-    $('tagResult').className = 'result show';
-    $('tagResult').innerHTML = tagCard(tag, prop);
-    $('tagCreator').value = ''; $('tagContent').value = '';
-    flash('tagFlash', 'Tag created for ' + tag.creator_handle + ' × ' + prop.name + '.');
-    renderTags();
-  } catch(e){ flash('tagFlash', 'Save failed: ' + e.message, false); }
-}
-
-function tagCard(tag, prop){
-  return `<div class="panel">
-    <b style="color:var(--gold)">${esc(tag.creator_handle)}</b> × ${esc(prop ? prop.name : 'property')}
-    <label style="margin-top:.75rem">Promo code — survives screenshots, device switches, and slow deciders</label>
-    <div class="copyable"><code>${esc(tag.code)}</code><button class="btn small" onclick="copyText('${esc(tag.code)}', this)">Copy</button></div>
-    <label style="margin-top:.75rem">Tracked link — for bio links, Stories stickers, and comment-to-DM</label>
-    <div class="copyable"><code>${esc(tag.tracked_url)}</code><button class="btn small" onclick="copyText('${esc(tag.tracked_url)}', this)">Copy</button></div>
-  </div>`;
-}
-
-async function renderTags(){
-  const [tags, props] = await Promise.all([dbList('tags'), dbList('network_properties')]);
-  const byId = Object.fromEntries(props.map(p => [p.id, p]));
-  const el = $('tagList');
-  if (!tags.length){ el.innerHTML = '<div class="empty">No tags yet. Create the first pairing above.</div>'; return; }
-  el.innerHTML = '<table><thead><tr><th>Creator</th><th>Property</th><th>Code</th><th>Created</th></tr></thead><tbody>' +
-    tags.map(t => `<tr><td>${esc(t.creator_handle)}</td><td>${esc(byId[t.property_id]?.name || '—')}</td><td class="code">${esc(t.code)}</td><td>${new Date(t.created_at).toLocaleDateString('en-CA')}</td></tr>`).join('') +
-    '</tbody></table>';
-}
-
-function copyText(text, btn){
-  navigator.clipboard.writeText(text).then(() => {
-    const old = btn.textContent; btn.textContent = 'Copied';
-    setTimeout(() => btn.textContent = old, 1500);
-  });
-}
-
-/* ---------------- check a video ---------------- */
-function parseHandle(url){
-  try {
-    const u = new URL(url);
-    if (u.hostname.includes('tiktok.com')){
-      const m = u.pathname.match(/@([^/]+)/); if (m) return '@' + m[1];
-    }
-    if (u.hostname.includes('instagram.com')){
-      const parts = u.pathname.split('/').filter(Boolean);
-      // instagram.com/{handle}/reel/... — but reel links are usually instagram.com/reel/{id}, handle unknown
-      if (parts.length && !['reel','reels','p','tv','stories'].includes(parts[0])) return '@' + parts[0];
-    }
-  } catch(e){}
-  return null;
-}
-
-async function checkVideo(){
-  const url = $('videoUrl').value.trim();
-  if (!url) return flash('checkFlash', 'Paste a video link first.', false);
-  let handle = parseHandle(url);
-
-  // TikTok oEmbed is open — try to confirm the creator
-  if (!handle && url.includes('tiktok.com')){
-    try {
-      const r = await fetch('https://www.tiktok.com/oembed?url=' + encodeURIComponent(url));
-      if (r.ok){ const d = await r.json(); if (d.author_unique_id) handle = '@' + d.author_unique_id; }
-    } catch(e){}
-  }
-
-  const out = $('checkResult');
-  const [tags, props] = await Promise.all([dbList('tags'), dbList('network_properties')]);
-  const byId = Object.fromEntries(props.map(p => [p.id, p]));
-
-  if (handle){
-    const matches = tags.filter(t => t.creator_handle.toLowerCase() === handle.toLowerCase());
-    if (matches.length){
-      out.className = 'result show';
-      out.innerHTML = `<div class="panel"><b style="color:var(--good)">Bookable.</b> ${esc(handle)} is in the network with ${matches.length} tag${matches.length>1?'s':''}.</div>` +
-        matches.map(t => tagCard(t, byId[t.property_id])).join('');
-      flash('checkFlash', 'Match found for ' + handle + '.');
-      return;
-    }
-    // known handle, not in network → lead
-    await dbInsert('leads', { content_url: url, creator_handle: handle, note: 'Checked, not yet in network' });
-    out.className = 'result show';
-    out.innerHTML = `<div class="panel"><b style="color:var(--gold)">Not yet.</b> ${esc(handle)} isn't in the network. Saved as a lead — this is your recruitment list writing itself.</div>`;
-    flash('checkFlash', 'Saved as a lead.');
-    return;
-  }
-
-  // couldn't read a handle (typical for IG reel links)
-  await dbInsert('leads', { content_url: url, creator_handle: null, note: 'Handle not readable from link' });
-  out.className = 'result show';
-  out.innerHTML = `<div class="panel"><b style="color:var(--gold)">Couldn't read the creator from that link.</b> Instagram Reel links don't carry the handle. Saved as a lead — or create the tag directly if you know who posted it.</div>`;
-  flash('checkFlash', 'Saved as a lead.');
-}
-
-/* ---------------- bookings ---------------- */
-async function logBooking(){
-  const code = $('bookCode').value.trim().toUpperCase();
-  const value = parseFloat($('bookValue').value);
-  if (!code) return flash('bookFlash', 'Enter the code the property reported.', false);
-  if (!value || value <= 0) return flash('bookFlash', 'Enter the booking value.', false);
-  try {
-    const tags = await dbList('tags');
-    const tag = tags.find(t => t.code.toUpperCase() === code);
-    if (!tag) return flash('bookFlash', 'No tag matches that code. Check it against the tags list.', false);
-    const row = { tag_id: tag.id, code: tag.code, booking_value: value, booked_on: $('bookDate').value || new Date().toISOString().slice(0,10) };
-    if (!sb){ row.creator_amount = +(value*0.05).toFixed(2); row.fetch_amount = +(value*0.05).toFixed(2); }
-    const b = await dbInsert('bookings', row);
-    const props = await dbList('network_properties');
-    const prop = props.find(p => p.id === tag.property_id);
-    $('bookResult').className = 'result show';
-    $('bookResult').innerHTML = `<div class="panel">
-      <b style="color:var(--good)">Booking verified.</b> ${esc(tag.creator_handle)} × ${esc(prop?.name || '')} — ${money(value)}
-      <div class="split">
-        <div><b>${money(value*0.05)}</b><span>Creator earns (5%)</span></div>
-        <div><b>${money(value*0.05)}</b><span>FETCH earns (5%)</span></div>
-        <div><b>${money(value*0.15)}–${money(value*0.30)}</b><span>What an OTA would have taken</span></div>
+<!-- HOW IT WORKS -->
+<section id="how" style="padding-top:3.5rem">
+  <div class="tight">
+    <h2>Tag. Book. Prove.</h2>
+    <div class="steps">
+      <div class="step">
+        <div class="n">1</div>
+        <h3>Tag</h3>
+        <p>A creator tags a place in content they already make. FETCH generates a tracked link and a promo code for that exact pairing.</p>
       </div>
-    </div>`;
-    $('bookCode').value=''; $('bookValue').value='';
-    flash('bookFlash', 'Logged.');
-    renderProof();
-  } catch(e){ flash('bookFlash', 'Save failed: ' + e.message, false); }
+      <div class="step">
+        <div class="n">2</div>
+        <h3>Book</h3>
+        <p>A traveler taps through and books direct on the property's own booking page. Same price they'd pay anywhere. FETCH never touches the payment.</p>
+      </div>
+      <div class="step">
+        <div class="n">3</div>
+        <h3>Prove</h3>
+        <p>The booking is verified, and a 10% commission splits instantly: 5% to the creator in cash, 5% to FETCH. Both sides see the proof.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MATH STRIP -->
+<section class="math">
+  <div class="tight">
+    <div><b>$1,500</b><span>A traveler books a stay</span></div>
+    <div class="strike"><b>$450</b><span>What an OTA would take (up to 30%)</span></div>
+    <div><b>$150</b><span>What FETCH takes (10%)</span></div>
+    <div><b>$75</b><span>Paid to the creator, in cash</span></div>
+  </div>
+</section>
+
+<!-- AUDIENCES -->
+<section>
+  <div class="tight">
+    <div class="split2">
+      <div class="aud" id="creators">
+        <img loading="lazy" src="https://images.unsplash.com/photo-1530789253388-582c481c54b0?auto=format&fit=crop&w=1200&q=80" alt="Traveler watching hot air balloons at sunrise">
+        <div class="aud-inner">
+          <h3>For creators</h3>
+          <p class="big">You already sell the trip. Start getting paid for it.</p>
+          <ul>
+            <li>5% cash on every verified booking your content drives</li>
+            <li>Tag places in content you've already posted</li>
+            <li>Browse the network and grab links for anywhere that fits your audience</li>
+            <li>Request hosted stays from properties that want your lens</li>
+          </ul>
+          <a class="btn" href="#join">Join as a creator</a>
+        </div>
+      </div>
+      <div class="aud" id="properties">
+        <img loading="lazy" src="https://images.unsplash.com/photo-1571896349842-33c89424de2d?auto=format&fit=crop&w=1200&q=80" alt="Guest overlooking an infinity pool at a boutique resort">
+        <div class="aud-inner">
+          <h3>For properties &amp; DMCs</h3>
+          <p class="big">Demand at 10%, not 30%. And the guest stays yours.</p>
+          <ul>
+            <li>Pay only on verified direct bookings — never for reach or impressions</li>
+            <li>Keep the guest relationship, the data, and the repeat stay</li>
+            <li>Pick creators on proof of bookings, not follower counts</li>
+            <li>Invite creators headed your way with hosted stays</li>
+          </ul>
+          <a class="btn" href="#join">List my property</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- NETWORK BAND -->
+<section class="band">
+  <div class="grid">
+    <div class="tile"><img loading="lazy" src="https://images.unsplash.com/photo-1439066615861-d1af74d74000?auto=format&fit=crop&w=900&q=80" alt="Dock stretching into a calm lake"><span>Vancouver Island</span></div>
+    <div class="tile"><img loading="lazy" src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=900&q=80" alt="Snowy mountain ridge at dawn"><span>Sea to Sky</span></div>
+    <div class="tile"><img loading="lazy" src="https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=900&q=80" alt="Sunrise over misty peaks"><span>Kootenays</span></div>
+    <div class="tile"><img loading="lazy" src="https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=900&q=80" alt="Person overlooking a mountain lake"><span>Sunshine Coast</span></div>
+  </div>
+  <p class="band-note"><b>Launching first in British Columbia.</b> Density before coverage — a network where everything you see is actually bookable.</p>
+</section>
+
+<!-- WAITLIST -->
+<div class="join-wrap">
+<section id="join">
+  <div class="tight">
+    <div class="mascots">
+      <img src="/corgi.png" alt="FETCH mascot — corgi" width="86" height="86">
+      <img src="/blacklab.png" alt="FETCH mascot — black lab" width="86" height="86">
+    </div>
+    <p class="mascot-note">Official FETCH mascots. They approve of direct bookings.</p>
+    <h2>The pilot is filling now.</h2>
+    <p class="lede">First cohort: BC coast. Small on purpose — every pairing gets set up by hand so the proof is airtight.</p>
+    <div class="forms">
+      <div class="form">
+        <h3>Creators</h3>
+        <p>Travel content with an engaged audience. Any size — conversion beats reach here.</p>
+        <label for="cName">Name</label>
+        <input id="cName" autocomplete="name">
+        <label for="cHandle">Handle</label>
+        <input id="cHandle" placeholder="@yourhandle">
+        <label for="cEmail">Email</label>
+        <input id="cEmail" type="email" autocomplete="email">
+        <button class="btn" onclick="join('creator')">Request an invite</button>
+        <div class="msg" id="creatorMsg"></div>
+      </div>
+      <div class="form">
+        <h3>Properties &amp; DMCs</h3>
+        <p>Independent stays, tour operators, and DMCs with their own booking page.</p>
+        <label for="pName">Property or company</label>
+        <input id="pName" autocomplete="organization">
+        <label for="pRegion">Region</label>
+        <input id="pRegion" placeholder="Tofino, BC">
+        <label for="pEmail">Email</label>
+        <input id="pEmail" type="email" autocomplete="email">
+        <button class="btn" onclick="join('property')">Request an invite</button>
+        <div class="msg" id="propertyMsg"></div>
+      </div>
+    </div>
+  </div>
+</section>
+</div>
+
+<footer>
+  <div class="foot">
+    <div>FETCH · The best trip is the next one.</div>
+    <div><a href="/app.html">Live demo</a> · <a href="mailto:brian@brand-tastic.ca">brian@brand-tastic.ca</a></div>
+  </div>
+</footer>
+
+<script>
+const SB_URL = 'https://sqzuvtshebrgzivyzyif.supabase.co';
+const SB_KEY = 'sb_publishable_xbumKc7i0RuG4ARzSSB40w_jOuv0ihq';
+let sb = null;
+try { sb = supabase.createClient(SB_URL, SB_KEY); } catch(e){}
+
+async function join(kind){
+  const isC = kind === 'creator';
+  const name = document.getElementById(isC ? 'cName' : 'pName').value.trim();
+  const email = document.getElementById(isC ? 'cEmail' : 'pEmail').value.trim();
+  const extra = document.getElementById(isC ? 'cHandle' : 'pRegion').value.trim();
+  const msg = document.getElementById(kind + 'Msg');
+  const show = (t, ok) => { msg.textContent = t; msg.className = 'msg show ' + (ok ? 'ok' : 'err'); };
+
+  if (!email || !email.includes('@')) return show('An email is needed so we can send the invite.', false);
+  if (!sb) return show('Sign-up is briefly offline. Email brian@brand-tastic.ca and you\'re in.', false);
+  try {
+    const { error } = await sb.from('waitlist').insert({
+      kind,
+      name: isC ? name : null,
+      email,
+      handle_or_property: isC ? extra : name,
+      region: isC ? null : extra,
+    });
+    if (error) throw error;
+    show(isC ? 'You\'re on the list. We\'ll reach out about the BC cohort.' : 'Received. We\'ll be in touch about the pilot.', true);
+  } catch(e){
+    show('That didn\'t save. Email brian@brand-tastic.ca and you\'re in.', false);
+  }
 }
-
-/* ---------------- proof ---------------- */
-let proofCache = [];
-async function renderProof(){
-  const [bookings, tags, props] = await Promise.all([dbList('bookings'), dbList('tags'), dbList('network_properties')]);
-  const tagById = Object.fromEntries(tags.map(t => [t.id, t]));
-  const propById = Object.fromEntries(props.map(p => [p.id, p]));
-  proofCache = bookings.map(b => {
-    const t = tagById[b.tag_id] || {};
-    return {
-      date: b.booked_on || (b.created_at||'').slice(0,10),
-      creator: t.creator_handle || '—',
-      property: propById[t.property_id]?.name || '—',
-      code: b.code,
-      value: Number(b.booking_value),
-      creator_amount: Number(b.creator_amount ?? b.booking_value*0.05),
-      fetch_amount: Number(b.fetch_amount ?? b.booking_value*0.05),
-    };
-  });
-  const gmv = proofCache.reduce((s,r)=>s+r.value,0);
-  const ce = proofCache.reduce((s,r)=>s+r.creator_amount,0);
-  const fe = proofCache.reduce((s,r)=>s+r.fetch_amount,0);
-  $('proofTotals').innerHTML = `
-    <div class="tot"><b>${proofCache.length}</b><span>Verified bookings</span></div>
-    <div class="tot"><b>${money(gmv)}</b><span>Direct GMV</span></div>
-    <div class="tot"><b>${money(ce)}</b><span>Paid to creators</span></div>
-    <div class="tot"><b>${money(fe)}</b><span>Earned by FETCH</span></div>`;
-  const el = $('proofTable');
-  if (!proofCache.length){ el.innerHTML = '<div class="empty">No bookings yet. The first row in this table is the whole pilot.</div>'; return; }
-  el.innerHTML = '<table><thead><tr><th>Date</th><th>Creator</th><th>Property</th><th>Code</th><th class="num">Value</th><th class="num">Creator</th><th class="num">FETCH</th></tr></thead><tbody>' +
-    proofCache.map(r => `<tr><td>${esc(r.date)}</td><td>${esc(r.creator)}</td><td>${esc(r.property)}</td><td class="code">${esc(r.code)}</td><td class="num">${money(r.value)}</td><td class="num">${money(r.creator_amount)}</td><td class="num">${money(r.fetch_amount)}</td></tr>`).join('') +
-    '</tbody></table>';
-}
-
-function exportCSV(){
-  if (!proofCache.length) return;
-  const head = 'date,creator,property,code,booking_value,creator_amount,fetch_amount\n';
-  const body = proofCache.map(r => [r.date, r.creator, r.property, r.code, r.value, r.creator_amount, r.fetch_amount].join(',')).join('\n');
-  const blob = new Blob([head + body], {type:'text/csv'});
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'fetch-proof.csv';
-  a.click();
-}
-
-/* ---------------- nav & init ---------------- */
-$('nav').addEventListener('click', e => {
-  const btn = e.target.closest('button'); if (!btn) return;
-  document.querySelectorAll('nav button').forEach(b => b.classList.toggle('on', b === btn));
-  document.querySelectorAll('section').forEach(s => s.classList.toggle('on', s.id === btn.dataset.t));
-});
-
-async function refreshAll(){
-  try { await Promise.all([renderNetwork(), renderTags(), renderProof()]); }
-  catch(e){ flash('setupFlash', 'Could not load data: ' + e.message + ' — check the schema ran in Supabase.', false); }
-}
-
-loadSetup();
-setMode();
-$('bookDate').value = new Date().toISOString().slice(0,10);
-refreshAll();
 </script>
 </body>
 </html>

@@ -17,10 +17,10 @@
   body{background:var(--paper);color:var(--ink);font-family:'Archivo',system-ui,sans-serif;line-height:1.55}
   .wrap{max-width:960px;margin:0 auto;padding:1.5rem 1.25rem 5rem}
   header{display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-bottom:1.6rem;flex-wrap:wrap}
-  .fetch-logo{display:inline-flex;align-items:center;color:inherit;text-decoration:none}
+  .fetch-logo{display:inline-flex;align-items:center;color:#0FA396;text-decoration:none}
   .fetch-logo img{width:2em;height:2em}
-  .fetch-logo i{display:block;width:1.05em;height:.14em;background:currentColor;border-radius:.1em;flex:none}
-  .fetch-logo b{font-family:'Pacifico',cursive;font-weight:400;font-size:1.55em;line-height:1;margin:0 .16em;transform:translateY(-.08em);-webkit-text-stroke:.018em currentColor;paint-order:stroke fill}
+  .fetch-logo i{display:block;width:1.1em;height:2px;background:#0FA396;border-radius:1px;flex:none}
+  .fetch-logo b{font-family:'Pacifico',cursive;font-weight:400;font-size:1.5em;line-height:1;margin:0 .18em;transform:translateY(-.08em)}
   .who{display:flex;gap:.6rem;align-items:center}
   h1{font-family:'Fraunces',serif;font-weight:600;font-size:1.7rem;margin-bottom:.3rem}
   .sub{color:var(--slate);margin-bottom:1.4rem;max-width:62ch}
@@ -58,7 +58,7 @@
 <body>
 <div class="wrap">
   <header>
-    <a class="fetch-logo" href="/" style="font-size:13px;color:var(--aqua)"><img src="/corgi.png" alt=""><i></i><b>Fetch</b><i></i><img src="/blacklab.png" alt=""></a>
+    <a class="fetch-logo" href="/" style="font-size:13px"><img src="/corgi.png" alt=""><i></i><b>Fetch</b><i></i><img src="/blacklab.png" alt=""></a>
     <div class="who">
       <label for="whoSel" style="color:var(--slate);font-size:.9rem">Property</label>
       <select id="whoSel" onchange="load()"></select>

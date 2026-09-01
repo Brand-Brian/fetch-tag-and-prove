@@ -161,6 +161,37 @@
   .msg.ok{color:var(--good);font-weight:600}
   .msg.err{color:var(--coral);font-weight:600}
 
+  /* money flow */
+  .flow{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1.2rem;margin-top:2.4rem}
+  .flow-step{background:#fff;border:1px solid var(--line);border-radius:16px;padding:1.5rem;box-shadow:0 10px 26px rgba(11,52,70,.07)}
+  .flow-step b{font-family:'Fraunces',serif;font-size:1.15rem;color:var(--aqua-deep);display:block;margin-bottom:.5rem}
+  .flow-step p{color:var(--slate);font-size:.95rem}
+
+  /* attribution */
+  .attrib{background:linear-gradient(120deg, var(--mist), var(--sky))}
+  .attrib-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1.2rem;margin-top:2.4rem}
+  .attrib-card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:1.7rem;box-shadow:0 10px 26px rgba(11,52,70,.07)}
+  .attrib-card h3{font-family:'Fraunces',serif;font-size:1.3rem;color:var(--ink);margin-bottom:.55rem}
+  .attrib-card p{color:var(--slate);font-size:.97rem}
+  .attrib-note{margin-top:1.6rem;color:var(--ink);font-weight:600;max-width:64ch}
+
+  /* promises */
+  .promise-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:1.2rem;margin-top:2.4rem}
+  .promise{border-left:3px solid var(--aqua);padding:.4rem 0 .4rem 1.2rem}
+  .promise b{display:block;color:var(--ink);font-size:1.05rem;margin-bottom:.35rem}
+  .promise p{color:var(--slate);font-size:.95rem}
+
+  /* faq */
+  .faq{background:var(--mist)}
+  .faq-cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:2.4rem;margin-top:2rem}
+  .faq-head{font-family:'Fraunces',serif;font-size:1.3rem;color:var(--aqua-deep);margin-bottom:1rem}
+  details{background:#fff;border:1px solid var(--line);border-radius:12px;margin-bottom:.7rem;overflow:hidden}
+  summary{cursor:pointer;padding:1rem 1.2rem;font-weight:600;color:var(--ink);list-style:none;position:relative;padding-right:2.6rem}
+  summary::-webkit-details-marker{display:none}
+  summary::after{content:'+';position:absolute;right:1.1rem;top:50%;transform:translateY(-50%);color:var(--aqua);font-size:1.3rem;font-weight:700}
+  details[open] summary::after{content:'–'}
+  details p{padding:0 1.2rem 1.1rem;color:var(--slate);font-size:.95rem}
+
   /* mascots */
   .mascots{display:flex;gap:.6rem;margin-bottom:.5rem}
   .mascots img{width:86px;height:86px}
@@ -271,7 +302,7 @@
       <div class="step">
         <div class="n">3</div>
         <h3>Prove</h3>
-        <p>The booking is verified, and a 10% commission splits instantly: 5% to the creator in cash, 5% to FETCH. Both sides see the proof.</p>
+        <p>When the stay completes, the booking is verified and a 10% commission splits automatically: 5% to the creator in cash, 5% to FETCH. Both sides see the proof.</p>
       </div>
     </div>
   </div>
@@ -318,6 +349,111 @@
           </ul>
           <a class="btn" href="#join">List my property</a>
         </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW THE MONEY MOVES -->
+<section id="money">
+  <div class="tight">
+    <h2>How the money moves</h2>
+    <p class="lede">No invoices to chase, no gray areas. The commission follows the stay, not the click.</p>
+    <div class="flow">
+      <div class="flow-step"><b>1 · Booked</b><p>A traveler books direct using a creator's link or code. The pairing is logged the moment it happens.</p></div>
+      <div class="flow-step"><b>2 · Stayed</b><p>The guest checks out. Cancellations and no-shows never trigger a commission — nobody gets paid on a trip that didn't happen.</p></div>
+      <div class="flow-step"><b>3 · Verified</b><p>The completed stay is confirmed with the property against the code or tracked link. Both sides see the same record.</p></div>
+      <div class="flow-step"><b>4 · Paid</b><p>The 10% splits: 5% to the creator in cash, 5% to FETCH. The property pays one simple commission — a third of the OTA toll.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ATTRIBUTION -->
+<section class="attrib">
+  <div class="tight">
+    <h2>How we prove it</h2>
+    <p class="lede">Attribution is the whole product, so it runs on two layers at once.</p>
+    <div class="attrib-grid">
+      <div class="attrib-card">
+        <h3>The tracked link</h3>
+        <p>Every creator-property pairing gets its own link. It lives in bios, Stories stickers, and auto-DMs — and it carries the creator's credit straight through to the property's own booking page.</p>
+      </div>
+      <div class="attrib-card">
+        <h3>The code</h3>
+        <p>The same pairing gets a unique code. It survives everything links can't: screenshots, device switches, and the traveler who books on a laptop nine days after seeing the Reel. If the code shows up on a booking, the creator gets credit. Full stop.</p>
+      </div>
+    </div>
+    <p class="attrib-note">Travelers never pay more for booking through a creator. Same room, same rate, same booking page — the only difference is who gets credit for the demand.</p>
+  </div>
+</section>
+
+<!-- PROMISES -->
+<section class="promises">
+  <div class="tight">
+    <h2>What FETCH will never do</h2>
+    <div class="promise-grid">
+      <div class="promise"><b>Never hold the traveler's money.</b><p>Every booking completes on the property's own booking page. The property is always the merchant of record.</p></div>
+      <div class="promise"><b>Never become another marketplace.</b><p>We don't want travelers searching FETCH. We want them booking you, direct, from the content that inspired them.</p></div>
+      <div class="promise"><b>Never charge to join.</b><p>No listing fees, no subscriptions, no charges for hosted stays. If a booking doesn't happen, nobody pays anything.</p></div>
+      <div class="promise"><b>Never creep the take rate.</b><p>10%, split evenly. The day we charge like an OTA, we've become the problem we were built to replace.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="faq" id="faq">
+  <div class="tight">
+    <h2>Your questions, answered</h2>
+    <div class="faq-cols">
+      <div>
+        <h3 class="faq-head">For creators</h3>
+        <details>
+          <summary>How big does my audience need to be?</summary>
+          <p>There's no minimum. FETCH pays on conversion, not reach — a creator with 4,000 engaged followers who trust their taste can out-earn one with 400,000. The pilot is picked on fit, not follower count.</p>
+        </details>
+        <details>
+          <summary>What content do I have to make?</summary>
+          <p>Whatever you already make. FETCH works on existing content — tag a place you've already posted about and it becomes bookable. No scripts, no briefs, no approval queues. Your content stays yours.</p>
+        </details>
+        <details>
+          <summary>When and how do I get paid?</summary>
+          <p>After the guest's stay completes and the booking is verified, your 5% pays out in cash. Not credits, not discounts, not exposure. During the pilot, payouts run monthly; automated instant payouts come with the full platform.</p>
+        </details>
+        <details>
+          <summary>What if someone sees my Reel but books a week later on their laptop?</summary>
+          <p>That's exactly what the code is for. Links can break across devices; the code doesn't. If your code is on the booking, you get credit — no matter when or where it happens.</p>
+        </details>
+        <details>
+          <summary>What about hosted stays?</summary>
+          <p>Properties in the network can invite you for hosted stays — and you can request them. Hosted stays are always free to arrange, and any bookings your content drives afterward pay your full commission.</p>
+        </details>
+      </div>
+      <div>
+        <h3 class="faq-head">For properties &amp; DMCs</h3>
+        <details>
+          <summary>What does it cost to join?</summary>
+          <p>Nothing. No listing fee, no subscription, no setup charge. You pay one thing, ever: 10% on a completed stay that a creator's content demonstrably drove. A booking that doesn't happen costs you zero.</p>
+        </details>
+        <details>
+          <summary>How do I know a booking really came from a creator?</summary>
+          <p>Two ways at once: the tracked link that lands on your booking page, and the unique code on the reservation. You see the same proof record we do — nobody takes anyone's word for anything.</p>
+        </details>
+        <details>
+          <summary>Do I need special technology?</summary>
+          <p>If you can take a direct booking and honour a promo or reference code, you can join today. During the pilot you simply report codes you receive. Automated verification connects to your booking engine or PMS later — no rip-and-replace, ever.</p>
+        </details>
+        <details>
+          <summary>What happens on a cancellation?</summary>
+          <p>Nothing. Commission is only due on completed stays. Cancellations and no-shows never generate a charge.</p>
+        </details>
+        <details>
+          <summary>Who owns the guest?</summary>
+          <p>You do. The booking happens on your engine, the payment goes to you, and the guest data stays with you. FETCH proves where the demand came from — it never gets between you and your guest.</p>
+        </details>
+        <details>
+          <summary>How do I choose which creators to work with?</summary>
+          <p>Inside the network you can browse creators by audience, region, and — most importantly — verified booking conversions. You pick partners on proof of bookings, not follower counts, and invite the ones headed your way.</p>
+        </details>
       </div>
     </div>
   </div>

@@ -17,11 +17,7 @@
   body{background:var(--paper);color:var(--ink);font-family:'Archivo',system-ui,sans-serif;line-height:1.55}
   .wrap{max-width:960px;margin:0 auto;padding:1.5rem 1.25rem 5rem}
   header{display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-bottom:1.6rem;flex-wrap:wrap}
-  .fetch-logo{display:inline-flex;align-items:center;color:#0FA396;text-decoration:none}
-  .fetch-logo img{width:2em;height:2em}
-  .fetch-logo i{display:block;width:1.1em;height:2px;background:#0FA396;border-radius:1px;flex:none}
-  .fetch-logo b{font-family:'Sacramento',cursive;font-weight:400;font-size:2.15em;line-height:1;margin:0 .1em;transform:translateY(-.12em)}
-  .who{display:flex;gap:.6rem;align-items:center}
+    .who{display:flex;gap:.6rem;align-items:center}
   h1{font-family:'Fraunces',serif;font-weight:600;font-size:1.7rem;margin-bottom:.3rem}
   .sub{color:var(--slate);margin-bottom:1.4rem;max-width:60ch}
   h2{font-family:'Fraunces',serif;font-weight:600;font-size:1.2rem;margin-bottom:.8rem}
@@ -55,7 +51,7 @@
 <body>
 <div class="wrap">
   <header>
-    <a class="fetch-logo" href="/" style="font-size:13px"><img src="/corgi.png" alt=""><i></i><b>Fetch</b><i></i><img src="/blacklab.png" alt=""></a>
+    <a href="/" aria-label="FETCH home"><img src="/logo.svg" alt="Fetch" style="height:32px;display:block"></a>
     <div class="who">
       <label for="whoSel" style="color:var(--slate);font-size:.9rem">You are</label>
       <select id="whoSel" onchange="load()"></select>

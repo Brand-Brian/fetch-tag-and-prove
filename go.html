@@ -11,16 +11,17 @@
   body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;
     background:linear-gradient(120deg,#EAF7FB,#F2FBF8);font-family:'Archivo',sans-serif;color:#0B3446}
   .card{text-align:center;padding:2rem}
-  .word{display:flex;align-items:center;justify-content:center;gap:.45rem;margin-bottom:.8rem}
-  .word span{font-family:'Pacifico',cursive;color:#0FA396;font-size:1.7rem;transform:translateY(-2px)}
-  .word img{width:34px;height:34px}
+  .word{position:relative;display:inline-flex;align-items:flex-end;gap:.15rem;margin-bottom:.9rem;padding:0 .15rem .6rem;color:#0FA396}
+  .word span{font-family:'Pacifico',cursive;font-size:1.7rem;line-height:1;margin:0 .3rem;position:relative;z-index:1;transform:translateY(3px)}
+  .word img{width:34px;height:34px;position:relative;z-index:1}
+  .word .swash{position:absolute;left:0;right:0;bottom:0;height:11px;color:inherit}
   p{color:#4A6B78}
   a{color:#0B8177;font-weight:700}
 </style>
 </head>
 <body>
 <div class="card">
-  <div class="word"><img src="/corgi.png" alt="" width="34" height="34"><span>Fetch</span><img src="/blacklab.png" alt="" width="34" height="34"></div>
+  <div class="word"><img src="/corgi.png" alt="" width="34" height="34"><span>Fetch</span><img src="/blacklab.png" alt="" width="34" height="34"><svg class="swash" viewBox="0 0 100 12" preserveAspectRatio="none" aria-hidden="true"><path d="M3 7 C 18 11.5, 30 3.5, 50 7.5 C 70 11, 82 3.5, 97 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div>
   <p id="msg">Taking you to your stay…</p>
 </div>
 <script>

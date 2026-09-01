@@ -56,9 +56,10 @@
     padding:.85rem 5vw;background:rgba(255,255,255,.82);backdrop-filter:blur(10px);
     border-bottom:1px solid rgba(255,255,255,.4);
   }
-  .wordmark{display:flex;align-items:center;gap:.45rem;text-decoration:none}
-  .wordmark img{width:34px;height:34px}
-  .wordmark span{font-family:'Pacifico',cursive;font-size:1.65rem;color:var(--aqua);line-height:1;transform:translateY(-2px)}
+  .wordmark{position:relative;display:flex;align-items:flex-end;gap:.15rem;text-decoration:none;padding:0 .15rem .55rem;color:var(--aqua)}
+  .wordmark img{width:32px;height:32px;position:relative;z-index:1}
+  .wordmark span{font-family:'Pacifico',cursive;font-size:1.6rem;line-height:1;margin:0 .3rem;position:relative;z-index:1;transform:translateY(3px)}
+  .wordmark .swash{position:absolute;left:0;right:0;bottom:0;height:11px;color:inherit}
   .nav-links{display:flex;gap:1.5rem;align-items:center;font-size:.95rem}
   .nav-links a{text-decoration:none;color:var(--ink);opacity:.85;font-weight:500}
   .nav-links a:hover{opacity:1;color:var(--aqua)}
@@ -201,9 +202,12 @@
 
   footer{padding:3rem 5vw 4rem;color:var(--slate);font-size:.9rem;border-top:1px solid var(--line);background:var(--sky)}
   .foot{display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap;max-width:1160px;margin:0 auto;align-items:center}
-  .foot-brand{display:flex;align-items:center;gap:.4rem}
-  .foot-brand span{font-family:'Pacifico',cursive;font-size:1.25rem;color:var(--aqua-deep);transform:translateY(-2px)}
-  .foot-brand em{font-style:normal;color:var(--slate)}
+  .foot-wrap{display:flex;align-items:center;gap:.9rem;flex-wrap:wrap}
+  .foot-wrap em{font-style:normal;color:var(--slate)}
+  .foot-brand{position:relative;display:inline-flex;align-items:flex-end;gap:.12rem;padding:0 .12rem .5rem;color:var(--aqua-deep)}
+  .foot-brand img{width:24px;height:24px;position:relative;z-index:1}
+  .foot-brand > span{font-family:'Pacifico',cursive;font-size:1.15rem;line-height:1;margin:0 .25rem;position:relative;z-index:1;transform:translateY(3px)}
+  .foot-brand .swash{position:absolute;left:0;right:0;bottom:0;height:9px;color:inherit}
   footer a{color:var(--aqua-deep);text-decoration:none;font-weight:600}
 
   @media (max-width:640px){
@@ -218,9 +222,10 @@
 
 <nav class="nav">
   <a class="wordmark" href="#top" aria-label="FETCH home">
-    <img src="/corgi.png" alt="" width="34" height="34">
+    <img src="/corgi.png" alt="" width="32" height="32">
     <span>Fetch</span>
-    <img src="/blacklab.png" alt="" width="34" height="34">
+    <img src="/blacklab.png" alt="" width="32" height="32">
+    <svg class="swash" viewBox="0 0 100 12" preserveAspectRatio="none" aria-hidden="true"><path d="M3 7 C 18 11.5, 30 3.5, 50 7.5 C 70 11, 82 3.5, 97 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
   </a>
   <div class="nav-links">
     <a href="#how" class="hide-sm">How it works</a>
@@ -522,7 +527,7 @@
 
 <footer>
   <div class="foot">
-    <div class="foot-brand"><img src="/corgi.png" alt="" width="26" height="26"><span>Fetch</span><img src="/blacklab.png" alt="" width="26" height="26"><em>· The best trip is the next one.</em></div>
+    <div class="foot-wrap"><span class="foot-brand"><img src="/corgi.png" alt="" width="24" height="24"><span>Fetch</span><img src="/blacklab.png" alt="" width="24" height="24"><svg class="swash" viewBox="0 0 100 12" preserveAspectRatio="none" aria-hidden="true"><path d="M3 7 C 18 11.5, 30 3.5, 50 7.5 C 70 11, 82 3.5, 97 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span><em>The best trip is the next one.</em></div>
     <div><a href="/app.html">Live demo</a> · <a href="mailto:brian@brand-tastic.ca">brian@brand-tastic.ca</a></div>
   </div>
 </footer>

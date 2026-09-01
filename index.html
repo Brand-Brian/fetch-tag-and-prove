@@ -35,7 +35,7 @@
     --mist:#F2FBF8;          /* seafoam tint */
     --sky:#EAF7FB;           /* pale aqua-blue tint */
     --ink:#0B3446;           /* deep ocean */
-    --slate:#4A6B78;         /* muted blue-gray text */
+    --slate:#35566A;         /* muted blue-gray text */
     --aqua:#0FA396;          /* aquamarine — CTAs */
     --aqua-deep:#0B8177;
     --seafoam:#8FE0CD;
@@ -81,7 +81,7 @@
   .kicker{color:var(--aqua-deep);font-weight:700;letter-spacing:.04em;margin-bottom:1rem}
   h1{font-family:'Fraunces',serif;font-weight:600;font-size:clamp(2.4rem, 6vw, 4.6rem);line-height:1.06;max-width:16ch;color:var(--ink)}
   h1 em{font-style:italic;color:var(--aqua)}
-  .hero p{margin:1.25rem 0 1.75rem;font-size:1.15rem;color:var(--slate);max-width:52ch}
+  .hero p{margin:1.25rem 0 1.75rem;font-size:1.15rem;color:var(--ink);font-weight:500;max-width:52ch}
   .hero-ctas{display:flex;gap:.9rem;flex-wrap:wrap}
   .hero-credit{position:absolute;right:1rem;bottom:.8rem;z-index:2;font-size:.7rem;color:rgba(11,52,70,.4)}
 
@@ -139,7 +139,7 @@
   @media (prefers-reduced-motion:reduce){.tile img{transition:none}.tile:hover img{transform:none}}
   .tile::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg, transparent 45%, rgba(11,52,70,.78))}
   .tile span{position:absolute;left:1rem;bottom:.85rem;z-index:2;font-family:'Fraunces',serif;font-size:1.05rem;color:#fff}
-  .band-note{text-align:center;padding:2.2rem 5vw;color:var(--slate)}
+  .band-note{text-align:center;padding:2.2rem 5vw;color:var(--ink)}
   .band-note b{color:var(--aqua-deep)}
 
   /* math strip */
@@ -195,10 +195,19 @@
   details[open] summary::after{content:'–'}
   details p{padding:0 1.2rem 1.1rem;color:var(--slate);font-size:.95rem}
 
+  /* featured cards */
+  .feat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:1.2rem;margin-top:2.4rem}
+  .feat{background:#fff;border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:0 14px 32px rgba(11,52,70,.1)}
+  .feat img{width:100%;aspect-ratio:4/3;object-fit:cover}
+  .feat-body{padding:1.1rem 1.2rem 1.3rem}
+  .feat-body b{display:block;font-family:'Fraunces',serif;font-size:1.15rem;color:var(--ink)}
+  .feat-body .meta{color:var(--slate);font-size:.9rem;margin:.25rem 0 .7rem}
+  .feat-body .chip{display:inline-block;background:var(--mist);color:var(--aqua-deep);font-size:.8rem;font-weight:700;padding:.25rem .7rem;border-radius:999px}
+
   /* mascots */
   .mascots{display:flex;gap:.6rem;margin-bottom:.5rem}
   .mascots img{width:86px;height:86px}
-  .mascot-note{color:var(--slate);font-size:.85rem;margin-bottom:1.4rem;font-style:italic}
+  .mascot-note{color:var(--ink);font-size:.9rem;margin-bottom:1.4rem;font-style:italic}
 
   footer{padding:3rem 5vw 4rem;color:var(--slate);font-size:.9rem;border-top:1px solid var(--line);background:var(--sky)}
   .foot{display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap;max-width:1160px;margin:0 auto;align-items:center}
@@ -362,6 +371,90 @@
             <li>Invite creators headed your way with hosted stays</li>
           </ul>
           <a class="btn" href="#join">List my property</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURED CREATORS -->
+<section class="feat-creators" id="featured-creators">
+  <div class="tight">
+    <h2>Meet the first creators</h2>
+    <p class="lede">Picked for conversion, not follower counts. Every stat below is a verified booking, not a vanity metric.</p>
+    <div class="feat-grid">
+      <div class="feat">
+        <img loading="lazy" src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=700&q=80" alt="Portrait of a smiling creator">
+        <div class="feat-body">
+          <b>@coastalkate</b>
+          <p class="meta">Storm season &amp; slow coast stays · Tofino</p>
+          <span class="chip">12 verified bookings</span>
+        </div>
+      </div>
+      <div class="feat">
+        <img loading="lazy" src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=700&q=80" alt="Portrait of a creator">
+        <div class="feat-body">
+          <b>@northbyben</b>
+          <p class="meta">Backcountry lodges &amp; alpine starts · Whistler</p>
+          <span class="chip">9 verified bookings</span>
+        </div>
+      </div>
+      <div class="feat">
+        <img loading="lazy" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=700&q=80" alt="Portrait of a creator">
+        <div class="feat-body">
+          <b>@saltandspray</b>
+          <p class="meta">Paddle trips &amp; island hopping · Ucluelet</p>
+          <span class="chip">7 verified bookings</span>
+        </div>
+      </div>
+      <div class="feat">
+        <img loading="lazy" src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=700&q=80" alt="Portrait of a creator">
+        <div class="feat-body">
+          <b>@goldenhourgo</b>
+          <p class="meta">Remote lodges &amp; wildlife · Great Bear</p>
+          <span class="chip">15 verified bookings</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURED PROPERTIES -->
+<section class="feat-props" id="featured-properties" style="padding-top:0">
+  <div class="tight">
+    <h2>Stay somewhere worth posting</h2>
+    <p class="lede">The first properties in the network — independent, direct-bookable, and built for the feed.</p>
+    <div class="feat-grid">
+      <div class="feat">
+        <img loading="lazy" src="https://images.unsplash.com/photo-1499793983690-e29da59ef1c2?auto=format&fit=crop&w=700&q=80" alt="Waterfront house on stilts">
+        <div class="feat-body">
+          <b>Driftwood Cove Cabins</b>
+          <p class="meta">Oceanfront cabins · Tofino, BC</p>
+          <span class="chip">Books direct</span>
+        </div>
+      </div>
+      <div class="feat">
+        <img loading="lazy" src="https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&w=700&q=80" alt="Resort pool at dusk">
+        <div class="feat-body">
+          <b>Alpenglow Lodge</b>
+          <p class="meta">Boutique alpine lodge · Whistler, BC</p>
+          <span class="chip">Books direct</span>
+        </div>
+      </div>
+      <div class="feat">
+        <img loading="lazy" src="https://images.unsplash.com/photo-1582719508461-905c673771fd?auto=format&fit=crop&w=700&q=80" alt="Bright boutique hotel room">
+        <div class="feat-body">
+          <b>Saltwater House</b>
+          <p class="meta">Island guesthouse · Salt Spring Island, BC</p>
+          <span class="chip">Books direct</span>
+        </div>
+      </div>
+      <div class="feat">
+        <img loading="lazy" src="https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=700&q=80" alt="Seaside resort at golden hour">
+        <div class="feat-body">
+          <b>Cedar &amp; Tide Tours</b>
+          <p class="meta">Small-group coastal tours · Ucluelet, BC</p>
+          <span class="chip">Books direct</span>
         </div>
       </div>
     </div>

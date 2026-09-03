@@ -191,15 +191,16 @@ function barChart(buckets, color='#0FA396', color2='#0B3446'){
   return s + '</svg>';
 }
 async function fetchAll(){
-  const [tags, bookings, clicks, props, content] = await Promise.all([
+  const [tags, bookings, clicks, clickWeeks, props, content] = await Promise.all([
     sb.from('tags').select('*'),
     sb.from('bookings').select('*'),
-    sb.from('clicks').select('*'),
+    sb.from('click_counts').select('*'),
+    sb.from('click_weeks').select('*'),
     sb.from('network_properties').select('*'),
     sb.from('tag_content').select('*'),
   ]);
-  for (const r of [tags,bookings,clicks,props]) if (r.error) throw r.error;
-  return { tags: tags.data, bookings: bookings.data, clicks: clicks.data, props: props.data, content: content.error ? [] : content.data };
+  for (const r of [tags,bookings,clicks,clickWeeks,props]) if (r.error) throw r.error;
+  return { tags: tags.data, bookings: bookings.data, clicks: clicks.data, clickWeeks: clickWeeks.data, props: props.data, content: content.error ? [] : content.data };
 }
 
 async function init(){
@@ -216,7 +217,7 @@ async function init(){
     const codeOwner = Object.fromEntries(cache.tags.map(t => [t.code, t.creator_handle]));
     const activity = {};
     handles.forEach(h => activity[h] = 0);
-    cache.clicks.forEach(c => { const h = codeOwner[c.code]; if (h) activity[h] += 1; });
+    cache.clicks.forEach(c => { const h = codeOwner[c.code]; if (h) activity[h] += (c.taps || 0); });
     cache.bookings.forEach(b => { const h = codeOwner[b.code]; if (h) activity[h] += 50; });
     const busiest = handles.slice().sort((a,b) => activity[b] - activity[a])[0];
     const pick = (urlH && handles.includes(urlH)) ? urlH : busiest;
@@ -233,24 +234,25 @@ function load(){
   const myTags = cache.tags.filter(t => t.creator_handle === me);
   const myCodes = new Set(myTags.map(t => t.code));
   const myBookings = cache.bookings.filter(b => myCodes.has(b.code));
-  const myClicks = cache.clicks.filter(c => myCodes.has(c.code));
+  const tapsByCode = Object.fromEntries(cache.clicks.filter(c => myCodes.has(c.code)).map(c => [c.code, c.taps]));
+  const myTaps = Object.values(tapsByCode).reduce((a,b)=>a+b, 0);
   const propById = Object.fromEntries(cache.props.map(p => [p.id, p]));
 
   const paid = myBookings.filter(b => b.status === 'paid').reduce((s,b)=>s+camt(b),0);
   const owed = myBookings.filter(b => b.status === 'verified').reduce((s,b)=>s+camt(b),0);
   const pending = myBookings.filter(b => (b.status||'reported') === 'reported').reduce((s,b)=>s+camt(b),0);
-  const conv = myClicks.length ? (myBookings.length / myClicks.length * 100) : 0;
+  const conv = myTaps ? (myBookings.length / myTaps * 100) : 0;
 
   $('stats').innerHTML = `
     <div class="stat"><b>${money(paid)}</b><span>Paid to you</span></div>
     <div class="stat"><b>${money(owed)}</b><span>Verified, payout coming</span></div>
     <div class="stat"><b>${money(pending)}</b><span>Reported, awaiting stay</span></div>
-    <div class="stat"><b>${myClicks.length}</b><span>Link taps, all time</span></div>
+    <div class="stat"><b>${myTaps.toLocaleString('en-CA')}</b><span>Link taps, all time</span></div>
     <div class="stat"><b>${conv.toFixed(1)}%</b><span>Taps that become bookings</span></div>`;
 
   // 8-week taps chart with booking markers
   const wb = weekBuckets();
-  myClicks.forEach(cl => { const b = bucketOf(wb, (cl.clicked_at||'').slice(0,10)); if (b) b.v++; });
+  cache.clickWeeks.filter(w => myCodes.has(w.code)).forEach(w => { const b = bucketOf(wb, w.week); if (b) b.v += w.taps; });
   myBookings.forEach(bk => { const b = bucketOf(wb, bk.booked_on||''); if (b) b.v2++; });
   $('trend').innerHTML = barChart(wb);
 
@@ -258,7 +260,7 @@ function load(){
   const vStays = myBookings.filter(b => b.status==='verified'||b.status==='paid').length;
   const pStays = myBookings.filter(b => b.status==='paid').length;
   $('funnel').innerHTML = `
-    <div class="fun"><b>${myClicks.length}</b><span>Taps</span></div><div class="fun-arrow">→</div>
+    <div class="fun"><b>${myTaps.toLocaleString('en-CA')}</b><span>Taps</span></div><div class="fun-arrow">→</div>
     <div class="fun"><b>${myBookings.length}</b><span>Bookings</span></div><div class="fun-arrow">→</div>
     <div class="fun"><b>${vStays}</b><span>Verified stays</span></div><div class="fun-arrow">→</div>
     <div class="fun"><b>${pStays}</b><span>Paid out</span></div>`;
@@ -267,7 +269,7 @@ function load(){
   const perf = {};
   myTags.forEach(t => perf[t.property_id] = { name: propById[t.property_id]?.name || '—', taps:0, bookings:0, gmv:0, earn:0, codes:new Set([t.code]) });
   myTags.forEach(t => perf[t.property_id].codes.add(t.code));
-  myClicks.forEach(cl => { const t = myTags.find(t => t.code === cl.code); if (t) perf[t.property_id].taps++; });
+  myTags.forEach(t => { perf[t.property_id].taps += (tapsByCode[t.code] || 0); });
   myBookings.forEach(bk => {
     const t = myTags.find(t => t.code === bk.code); if (!t) return;
     const p = perf[t.property_id]; p.bookings++;
@@ -297,7 +299,7 @@ function load(){
   // per-tag rollup: taps, bookings, earnings and where each one has got to
   const tagStats = {};
   myTags.forEach(t => tagStats[t.code] = { taps:0, bookings:0, earn:0, paid:0, verified:0, reported:0 });
-  myClicks.forEach(c => { if (tagStats[c.code]) tagStats[c.code].taps++; });
+  myTags.forEach(t => { if (tagStats[t.code]) tagStats[t.code].taps = tapsByCode[t.code] || 0; });
   myBookings.forEach(b => {
     const st = tagStats[b.code]; if (!st) return;
     st.bookings++;

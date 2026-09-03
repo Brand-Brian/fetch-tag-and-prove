@@ -193,14 +193,16 @@ function barChart(buckets, color='#0FA396', color2='#0B3446'){
   return s + '</svg>';
 }
 async function fetchAll(){
-  const [tags, bookings, clicks, props] = await Promise.all([
+  const [tags, bookings, clicks, clickWeeks, clickMonths, props] = await Promise.all([
     sb.from('tags').select('*'),
     sb.from('bookings').select('*'),
-    sb.from('clicks').select('*'),
+    sb.from('click_counts').select('*'),
+    sb.from('click_weeks').select('*'),
+    sb.from('click_months').select('*'),
     sb.from('network_properties').select('*'),
   ]);
-  for (const r of [tags,bookings,clicks,props]) if (r.error) throw r.error;
-  return { tags: tags.data, bookings: bookings.data, clicks: clicks.data, props: props.data };
+  for (const r of [tags,bookings,clicks,clickWeeks,clickMonths,props]) if (r.error) throw r.error;
+  return { tags: tags.data, bookings: bookings.data, clicks: clicks.data, clickWeeks: clickWeeks.data, clickMonths: clickMonths.data, props: props.data };
 }
 
 async function init(){
@@ -217,7 +219,7 @@ async function init(){
     const propOfCode = Object.fromEntries(cache.tags.map(t => [t.code, t.property_id]));
     const activity = {};
     cache.props.forEach(p => activity[p.id] = 0);
-    cache.clicks.forEach(c => { const id = propOfCode[c.code]; if (id in activity) activity[id] += 1; });
+    cache.clicks.forEach(c => { const id = propOfCode[c.code]; if (id in activity) activity[id] += (c.taps || 0); });
     cache.bookings.forEach(b => { const id = propOfCode[b.code]; if (id in activity) activity[id] += 50; });
     const busiest = cache.props.slice().sort((a,b) => activity[b.id] - activity[a.id])[0];
     const pick = (urlP && cache.props.some(p => p.id === urlP)) ? urlP : (busiest && busiest.id);
@@ -234,11 +236,12 @@ function load(){
   const myTags = cache.tags.filter(t => t.property_id === pid);
   const codes = new Set(myTags.map(t => t.code));
   const myBookings = cache.bookings.filter(b => codes.has(b.code));
-  const myClicks = cache.clicks.filter(c => codes.has(c.code));
+  const tapsByCode = Object.fromEntries(cache.clicks.filter(c => codes.has(c.code)).map(c => [c.code, c.taps]));
+  const myTaps = Object.values(tapsByCode).reduce((a,b)=>a+b, 0);
   const tagByCode = Object.fromEntries(myTags.map(t => [t.code, t]));
 
   const month = new Date().toISOString().slice(0,7);
-  const tapsMonth = myClicks.filter(c => (c.clicked_at||'').slice(0,7) === month).length;
+  const tapsMonth = cache.clickMonths.filter(m => codes.has(m.code) && m.month === month).reduce((a,m)=>a+m.taps, 0);
   const verified = myBookings.filter(b => b.status === 'verified' || b.status === 'paid');
   const gmv = verified.reduce((s,b)=>s+Number(b.booking_value),0);
   const due = myBookings.filter(b => b.status === 'verified').reduce((s,b)=>s+Number(b.booking_value)*0.10,0);
@@ -253,13 +256,13 @@ function load(){
 
   // 8-week trend: taps + bookings
   const wb = weekBuckets();
-  myClicks.forEach(cl => { const b = bucketOf(wb, (cl.clicked_at||'').slice(0,10)); if (b) b.v++; });
+  cache.clickWeeks.filter(w => codes.has(w.code)).forEach(w => { const b = bucketOf(wb, w.week); if (b) b.v += w.taps; });
   myBookings.forEach(bk => { const b = bucketOf(wb, bk.booked_on||''); if (b) b.v2++; });
   $('trend').innerHTML = barChart(wb);
 
   // funnel
   $('funnel').innerHTML = `
-    <div class="fun"><b>${myClicks.length}</b><span>Taps</span></div><div class="fun-arrow">→</div>
+    <div class="fun"><b>${myTaps.toLocaleString('en-CA')}</b><span>Taps</span></div><div class="fun-arrow">→</div>
     <div class="fun"><b>${myBookings.length}</b><span>Bookings</span></div><div class="fun-arrow">→</div>
     <div class="fun"><b>${verified.length}</b><span>Verified stays</span></div>`;
 
@@ -288,7 +291,7 @@ function load(){
   // leaderboard by verified bookings
   const byCreator = {};
   myTags.forEach(t => byCreator[t.creator_handle] = byCreator[t.creator_handle] || { taps:0, bookings:0, verified:0, gmv:0 });
-  myClicks.forEach(c => { const h = tagByCode[c.code]?.creator_handle; if (h) byCreator[h].taps++; });
+  myTags.forEach(t => { const h = t.creator_handle; if (byCreator[h]) byCreator[h].taps += (tapsByCode[t.code] || 0); });
   myBookings.forEach(b => {
     const h = tagByCode[b.code]?.creator_handle; if (!h) return;
     byCreator[h].bookings++;

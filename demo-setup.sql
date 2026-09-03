@@ -38,6 +38,25 @@ alter table tags add column if not exists content_format text;   -- Reel | Carou
 alter table tags add column if not exists content_label  text;   -- short human descriptor, e.g. "storm season"
 alter table tags add column if not exists posted_on      date;   -- when the creator published it
 
+-- ========== 3b. clicks-views.sql ==========
+create or replace view click_counts as
+  select code, count(*)::int as taps
+  from clicks group by code;
+
+create or replace view click_weeks as
+  select code,
+         (date_trunc('week', clicked_at))::date as week,
+         count(*)::int as taps
+  from clicks group by code, 2;
+
+create or replace view click_months as
+  select code,
+         to_char(clicked_at, 'YYYY-MM') as month,
+         count(*)::int as taps
+  from clicks group by code, 2;
+
+grant select on click_counts, click_weeks, click_months to anon, authenticated;
+
 -- ========== 4. seed.sql ==========
 -- Safe to re-run: it clears its own rows first (everything it writes is prefixed
 -- FETCH-DEMO- or marked notes = 'demo-seed').

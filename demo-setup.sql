@@ -18,6 +18,7 @@ alter table bookings add column if not exists status text not null default 'repo
 alter table bookings add column if not exists paid_at date;
 
 alter table clicks enable row level security;
+drop policy if exists "pilot open" on clicks;
 create policy "pilot open" on clicks for all using (true) with check (true);
 
 -- ========== 2. retro.sql ==========
@@ -28,6 +29,7 @@ create table if not exists tag_content (
   created_at timestamptz default now()
 );
 alter table tag_content enable row level security;
+drop policy if exists "pilot open" on tag_content;
 create policy "pilot open" on tag_content for all using (true) with check (true);
 
 -- ========== 3. content.sql ==========

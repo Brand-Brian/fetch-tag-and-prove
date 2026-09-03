@@ -5,6 +5,7 @@
 -- with a plausible Tofino–Ucluelet pilot so the interfaces can be judged when full.
 -- Every property, creator and booking below is invented. Nothing here is real.
 --
+-- Run schema.sql, reconcile.sql, retro.sql and content.sql first.
 -- Safe to re-run: it clears its own rows first (everything it writes is prefixed
 -- FETCH-DEMO- or marked notes = 'demo-seed').
 
@@ -141,6 +142,39 @@ insert into bookings (code, booking_value, booked_on, checkout_date, status, ver
 -- stamp the payout date on everything already paid
 update bookings set paid_at = checkout_date
 where code like 'FETCH-DEMO-%' and status = 'paid' and paid_at is null;
+
+-- ---------- what each piece of content actually was ----------
+-- Requires content.sql to have been run first.
+update tags t set
+  content_format = v.fmt,
+  content_label  = v.lbl,
+  posted_on      = current_date - v.days
+from (values
+  ('FETCH-DEMO-SCOUT-CEDR','Reel','storm season',52),
+  ('FETCH-DEMO-SCOUT-DRFT','Reel','one night in a dome',44),
+  ('FETCH-DEMO-SCOUT-QUIE','Carousel','where to stay',39),
+  ('FETCH-DEMO-SCOUT-WOLF','Reel','rainforest walk',30),
+  ('FETCH-DEMO-SCOUT-STRM','Story set','3 frames',12),
+  ('FETCH-DEMO-SCOUT-KELP','TikTok','off-season guide',7),
+  ('FETCH-DEMO-SALT-CEDR','Reel','the drive in',48),
+  ('FETCH-DEMO-SALT-RIDG','Reel','cabin tour',43),
+  ('FETCH-DEMO-SALT-MIST','TikTok','what $300 gets you',33),
+  ('FETCH-DEMO-SALT-LONG','Carousel','harbour morning',22),
+  ('FETCH-DEMO-LOWT-CEDR','Reel','surf check',36),
+  ('FETCH-DEMO-LOWT-RIDG','Reel','fireplace and fog',41),
+  ('FETCH-DEMO-LOWT-DRFT','TikTok','dome at night',28),
+  ('FETCH-DEMO-WEST-QUIE','Reel',E'a local\'s guide',40),
+  ('FETCH-DEMO-WEST-CEDR','Story set','4 frames',31),
+  ('FETCH-DEMO-WEST-WOLF','Carousel','the trail behind',19),
+  ('FETCH-DEMO-FOGF-RIDG','Reel','rain day',35),
+  ('FETCH-DEMO-FOGF-MIST','TikTok','breakfast view',24),
+  ('FETCH-DEMO-FOGF-TIDE','Carousel','tidepools at dawn',16),
+  ('FETCH-DEMO-GREY-DRFT','Reel','ferry to the coast',46),
+  ('FETCH-DEMO-GREY-STRM','TikTok','storm watching',21),
+  ('FETCH-DEMO-GREY-SALA','Reel','four suites, one beach',11)
+) as v(code, fmt, lbl, days)
+where t.code = v.code;
+
 
 commit;
 

@@ -43,6 +43,8 @@
   .pill.paid{background:var(--mist);color:var(--good)}
   .pill.verified{background:var(--sky);color:var(--aqua-deep)}
   .pill.reported{background:#F4F1EE;color:var(--slate)}
+  .pill.live{background:#F4F1EE;color:var(--slate)}
+  .sub-cell{display:block;font-size:.82rem;color:var(--slate);margin-top:.15rem;font-weight:400}
   .flash{border-radius:8px;padding:.7rem .9rem;margin-top:.9rem;font-size:.92rem;display:none}
   .flash.show{display:block}
   .flash.ok{background:var(--mist);color:var(--good);font-weight:600}
@@ -284,9 +286,43 @@ function load(){
 
   const contentByTag = {};
   (cache.content||[]).forEach(x => contentByTag[x.tag_id] = (contentByTag[x.tag_id]||0) + 1);
+  // per-tag rollup: taps, bookings, earnings and where each one has got to
+  const tagStats = {};
+  myTags.forEach(t => tagStats[t.code] = { taps:0, bookings:0, earn:0, paid:0, verified:0, reported:0 });
+  myClicks.forEach(c => { if (tagStats[c.code]) tagStats[c.code].taps++; });
+  myBookings.forEach(b => {
+    const st = tagStats[b.code]; if (!st) return;
+    st.bookings++;
+    const k = b.status || 'reported';
+    if (k in st) st[k]++;
+    if (k === 'verified' || k === 'paid') st.earn += camt(b);
+  });
+  const tagState = st => st.paid ? ['paid','Paid']
+                       : st.verified ? ['verified','Stayed']
+                       : st.reported ? ['reported','Booked']
+                       : ['live','Live'];
+  const shortDate = d => { try { return new Date(d + 'T00:00:00').toLocaleDateString('en-CA',{day:'numeric',month:'short'}); } catch(e){ return d; } };
+  const contentCell = t => {
+    const head = [t.content_format, t.content_label].filter(Boolean).join(' · ');
+    const n = contentByTag[t.id] || 0;
+    const sub = t.posted_on ? 'posted ' + shortDate(t.posted_on)
+              : n ? n + (n === 1 ? ' post attached' : ' posts attached')
+              : 'nothing attached yet';
+    return '<div>' + esc(head || (n ? 'Content attached' : 'No content yet')) + '</div><span class="sub-cell">' + esc(sub) + '</span>';
+  };
+
   $('myTags').innerHTML = myTags.length
-    ? '<table><thead><tr><th>Place</th><th>Code</th><th class="num">Posts attached</th><th></th></tr></thead><tbody>' +
-      myTags.map(t => `<tr><td>${esc(propById[t.property_id]?.name || '—')}</td><td class="code">${esc(t.code)}</td><td class="num">${contentByTag[t.id]||0}</td><td class="num"><button class="btn small" onclick="copyLink('${esc(t.code)}', this)">Copy share link</button></td></tr>`).join('') + '</tbody></table>'
+    ? '<table><thead><tr><th>Property</th><th>Content</th><th class="num">Taps</th><th class="num">Bookings</th><th class="num">Earned</th><th>Status</th><th></th></tr></thead><tbody>' +
+      myTags.map(t => {
+        const st = tagStats[t.code]; const pair = tagState(st); const pr = propById[t.property_id];
+        return `<tr><td><b>${esc(pr?.name || '—')}</b><span class="sub-cell">${esc(pr?.region || '')}</span></td>`
+             + `<td>${contentCell(t)}</td>`
+             + `<td class="num">${st.taps}</td>`
+             + `<td class="num">${st.bookings}</td>`
+             + `<td class="num">${st.earn ? money(st.earn) : '—'}</td>`
+             + `<td><span class="pill ${pair[0]}">${pair[1]}</span></td>`
+             + `<td class="num"><button class="btn small" onclick="copyLink('${esc(t.code)}', this)">Copy link</button></td></tr>`;
+      }).join('') + '</tbody></table>'
     : '<div class="empty">No links yet. Grab one from the network below.</div>';
   $('attachTag').innerHTML = myTags.length
     ? myTags.map(t => `<option value="${t.id}">${esc(propById[t.property_id]?.name || t.code)}</option>`).join('')

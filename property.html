@@ -46,6 +46,8 @@
   .pill.paid{background:var(--mist);color:var(--good)}
   .pill.verified{background:var(--sky);color:var(--aqua-deep)}
   .pill.reported{background:#F4F1EE;color:var(--slate)}
+  .pill.live{background:#F4F1EE;color:var(--slate)}
+  .sub-cell{display:block;font-size:.82rem;color:var(--slate);margin-top:.15rem;font-weight:400}
   .flash{border-radius:8px;padding:.7rem .9rem;margin-top:.9rem;font-size:.92rem;display:none}
   .flash.show{display:block}
   .flash.ok{background:var(--mist);color:var(--good);font-weight:600}
@@ -284,10 +286,35 @@ function load(){
     byCreator[h].bookings++;
     if (b.status === 'verified' || b.status === 'paid'){ byCreator[h].verified++; byCreator[h].gmv += Number(b.booking_value); }
   });
+  // what each creator actually posted, and where that booking has got to
+  const shortDate = d => { try { return new Date(d + 'T00:00:00').toLocaleDateString('en-CA',{day:'numeric',month:'short'}); } catch(e){ return d; } };
+  const contentByCreator = {};
+  myTags.forEach(t => {
+    const head = [t.content_format, t.content_label].filter(Boolean).join(' · ');
+    if (!contentByCreator[t.creator_handle] || head) contentByCreator[t.creator_handle] = { head, posted: t.posted_on };
+  });
+  const stateByCreator = {};
+  myTags.forEach(t => stateByCreator[t.creator_handle] = stateByCreator[t.creator_handle] || { paid:0, verified:0, reported:0 });
+  myBookings.forEach(b => {
+    const h = tagByCode[b.code]?.creator_handle; if (!h || !stateByCreator[h]) return;
+    const k = b.status || 'reported'; if (k in stateByCreator[h]) stateByCreator[h][k]++;
+  });
+  const stateCell = h => {
+    const st = stateByCreator[h] || {};
+    const pair = st.paid ? ['paid','Paid'] : st.verified ? ['verified','Stayed'] : st.reported ? ['reported','Booked'] : ['live','Live'];
+    return `<span class="pill ${pair[0]}">${pair[1]}</span>`;
+  };
+  const contentCell = h => {
+    const c = contentByCreator[h];
+    const head = c && c.head ? c.head : 'Content attached';
+    const sub = c && c.posted ? 'posted ' + shortDate(c.posted) : 'date not recorded';
+    return '<div>' + esc(head) + '</div><span class="sub-cell">' + esc(sub) + '</span>';
+  };
+
   const rows = Object.entries(byCreator).sort((a,b)=> b[1].verified - a[1].verified || b[1].taps - a[1].taps);
   $('leaderboard').innerHTML = rows.length
-    ? '<table><thead><tr><th>Creator</th><th class="num">Taps</th><th class="num">Bookings</th><th class="num">Conv.</th><th class="num">Verified stays</th><th class="num">Verified GMV</th><th class="num">Their earnings</th></tr></thead><tbody>' +
-      rows.map(([h,s]) => `<tr><td>${esc(h)}</td><td class="num">${s.taps}</td><td class="num">${s.bookings}</td><td class="num">${s.taps ? (s.bookings/s.taps*100).toFixed(1) : '0.0'}%</td><td class="num">${s.verified}</td><td class="num">${money(s.gmv)}</td><td class="num">${money(s.gmv*0.05)}</td></tr>`).join('') + '</tbody></table>'
+    ? '<table><thead><tr><th>Creator</th><th>Content</th><th class="num">Taps</th><th class="num">Bookings</th><th class="num">Conv.</th><th class="num">Verified GMV</th><th class="num">Their earnings</th><th>Status</th></tr></thead><tbody>' +
+      rows.map(([h,s]) => `<tr><td><b>${esc(h)}</b></td><td>${contentCell(h)}</td><td class="num">${s.taps}</td><td class="num">${s.bookings}</td><td class="num">${s.taps ? (s.bookings/s.taps*100).toFixed(1) : '0.0'}%</td><td class="num">${money(s.gmv)}</td><td class="num">${money(s.gmv*0.05)}</td><td>${stateCell(h)}</td></tr>`).join('') + '</tbody></table>'
     : '<div class="empty">No creators linked yet. They\'re coming.</div>';
 
   $('activity').innerHTML = myBookings.length

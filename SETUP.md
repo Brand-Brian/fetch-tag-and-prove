@@ -32,3 +32,26 @@ Then open your live URL, go to the Setup tab, paste the Project URL and anon key
 ## Two honest notes
 - Access is pilot-grade: anyone with the app URL can read and write. Fine for you and a handful of trusted pilot partners. Real logins come with the months 3-9 build.
 - Instagram Reel links don't reveal who posted them, so "Check a video" can't always identify the creator on IG. TikTok links work fully. For IG, create the tag directly — you'll know the creator anyway during the pilot.
+
+## Site structure (Sept 2026)
+
+Marketing pages: `index.html`, `creators.html`, `properties.html`, `network.html`,
+`proof.html`, `pricing.html`, `about.html`
+Demo tools: `creator.html`, `property.html`, `app.html`
+
+Shared assets:
+- `nav.css` — navigation + footer only. Self-contained `--fx-*` tokens so it can be
+  dropped on any page (including the dashboards) without clashing with their variables.
+- `site.css` — imports `nav.css`, then all marketing page styles.
+- `site.js` — mobile drawer, Demo dropdown, active-link highlighting.
+
+### Changing the nav or footer
+Edit the `NAV` / `FOOT` strings in `build.py`, then run:
+
+    python3 build.py
+
+It rewrites everything between the `<!--NAV-->…<!--/NAV-->` and
+`<!--FOOT-->…<!--/FOOT-->` markers in every `*.html` file. Don't hand-edit
+the stamped markup — it gets overwritten.
+
+New pages: templates and the page-builder live in `_build/`.

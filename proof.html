@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FETCH — How we prove it</title>
+<meta name="description" content="How FETCH attributes a direct booking to the creator who drove it: a tracked link, a code that survives device switches, and a monthly verification loop.">
+<link rel="canonical" href="https://fetch-and-prove.netlify.app/proof.html">
+<meta name="theme-color" content="#0FA396">
+<link rel="icon" type="image/png" href="/corgi.png">
+<link rel="apple-touch-icon" href="/corgi.png">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="FETCH">
+<meta property="og:title" content="FETCH — How we prove it">
+<meta property="og:description" content="How FETCH attributes a direct booking to the creator who drove it: a tracked link, a code that survives device switches, and a monthly verification loop.">
+<meta property="og:url" content="https://fetch-and-prove.netlify.app/proof.html">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,600&family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/site.css">
+</head>
+<body>
+<!--NAV--><nav class="nav">
+  <a class="nav-logo" href="/" aria-label="FETCH home"><img src="/logo.svg" alt="Fetch"></a>
+  <button class="nav-toggle" type="button" aria-label="Menu" aria-expanded="false" aria-controls="navLinks"><span></span></button>
+  <div class="nav-links" id="navLinks">
+    <a href="/creators.html">Creators</a>
+    <a href="/properties.html">Properties</a>
+    <a href="/network.html">Network</a>
+    <a href="/proof.html">Proof</a>
+    <a href="/pricing.html">Pricing</a>
+    <a href="/about.html">About</a>
+    <div class="nav-drop" data-open="false">
+      <button type="button" aria-expanded="false" aria-haspopup="true">Demo <span class="car">▼</span></button>
+      <div class="nav-drop-menu">
+        <a href="/creator.html"><b>Creator dashboard</b><span>Taps, bookings and what you're owed</span></a>
+        <a href="/property.html"><b>Property dashboard</b><span>Report stays, rank creators by proof</span></a>
+        <a href="/app.html"><b>Tag &amp; Prove</b><span>The pilot tool that runs attribution</span></a>
+        <p class="nav-drop-note">Demo data. Nothing here is a real booking.</p>
+      </div>
+    </div>
+    <div class="nav-cta"><a class="btn" href="/#join">Join the pilot</a></div>
+  </div>
+</nav><!--/NAV-->
+<header class="phero">
+  <div class="tight">
+    <p class="eyebrow">Proof</p>
+    <h1>Attribution <em>is</em> the product.</h1>
+    <p>UGC platforms show content and never say what it was worth. Affiliate networks were built for products with a cart. FETCH follows one piece of content all the way to a completed, direct booking — and can show both sides the same record.</p>
+    <div class="hero-ctas">
+      <a class="btn" href="/app.html">Open Tag &amp; Prove</a>
+      <a class="btn line" href="/#join">Join the pilot</a>
+    </div>
+  </div>
+</header>
+
+<section>
+  <div class="tight">
+    <h2>Two layers, running at once</h2>
+    <p class="lede">A tracked link is fast and precise but fragile. A code is slower but almost unbreakable. Running both is what makes attribution survive real traveller behaviour.</p>
+    <div class="split">
+      <div class="card">
+        <h3>Layer 1 — the tracked link</h3>
+        <p>Every creator-property pairing mints its own short link. It carries a click ID from the bio, the Story sticker or the auto-DM straight through to the property's own booking page, where a confirmation pixel closes the loop.</p>
+        <ul class="ticks" style="margin-top:1rem">
+          <li>Instant, exact, and invisible to the traveller</li>
+          <li>Records the tap even when the booking comes later</li>
+          <li>Breaks on: device switches, in-app browsers, cleared cookies, long delays</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Layer 2 — the code</h3>
+        <p>The same pairing gets a unique code. It rides on a screenshot, survives a switch from phone to laptop, and still works nine days later. If the code is on the reservation, the creator gets credit. Full stop.</p>
+        <ul class="ticks" style="margin-top:1rem">
+          <li>Survives everything the click chain can't</li>
+          <li>Readable by any property, with no technology at all</li>
+          <li>Doubles as the manual verification path during the pilot</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="band-mist">
+  <div class="tight">
+    <h2>From a post to a paid creator</h2>
+    <p class="lede">Five states. Each one has a record behind it that both the property and the creator can see.</p>
+    <div class="diagram-wrap">
+      <svg viewBox="0 0 980 210" role="img" aria-label="Attribution flow: tapped, booked, stayed, verified, paid" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <marker id="arw" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto">
+            <path d="M0,0 L9,4.5 L0,9 z" fill="#0FA396"></path>
+          </marker>
+        </defs>
+        <line x1="150" y1="86" x2="186" y2="86" stroke="#0FA396" stroke-width="2" marker-end="url(#arw)"/>
+        <line x1="340" y1="86" x2="376" y2="86" stroke="#0FA396" stroke-width="2" marker-end="url(#arw)"/>
+        <line x1="530" y1="86" x2="566" y2="86" stroke="#0FA396" stroke-width="2" marker-end="url(#arw)"/>
+        <line x1="720" y1="86" x2="756" y2="86" stroke="#0FA396" stroke-width="2" marker-end="url(#arw)"/>
+        <g>
+          <rect x="10" y="40" width="140" height="92" rx="14" fill="#fff" stroke="rgba(15,163,150,.3)"/>
+          <text x="80" y="72" text-anchor="middle" font-family="Fraunces,serif" font-size="17" font-weight="600" fill="#0B8177">Tapped</text>
+          <text x="80" y="95" text-anchor="middle" font-family="Archivo,sans-serif" font-size="11.5" fill="#35566A">Link click logged</text>
+          <text x="80" y="112" text-anchor="middle" font-family="Archivo,sans-serif" font-size="11.5" fill="#35566A">with a click ID</text>
+        </g>
+        <g>
+          <rect x="200" y="40" width="140" height="92" rx="14" fill="#fff" stroke="rgba(15,163,150,.3)"/>
+          <text x="270" y="72" text-anchor="middle" font-family="Fraunces,serif" font-size="17" font-weight="600" fill="#0B8177">Booked</text>
+          <text x="270" y="95" text-anchor="middle" font-family="Archivo,sans-serif" font-size="11.5" fill="#35566A">Direct, on the</text>
+          <text x="270" y="112" text-anchor="middle" font-family="Archivo,sans-serif" font-size="11.5" fill="#35566A">property's engine</text>
+        </g>
+        <g>
+          <rect x="390" y="40" width="140" height="92" rx="14" fill="#fff" stroke="rgba(15,163,150,.3)"/>
+          <text x="460" y="72" text-anchor="middle" font-family="Fraunces,serif" font-size="17" font-weight="600" fill="#0B8177">Stayed</text>
+          <text x="460" y="95" text-anchor="middle" font-family="Archivo,sans-serif" font-size="11.5" fill="#35566A">Guest checks out.</text>
+          <text x="460" y="112" text-anchor="middle" font-family="Archivo,sans-serif" font-size="11.5" fill="#35566A">No stay, no fee</text>
+        </g>
+        <g>
+          <rect x="580" y="40" width="140" height="92" rx="14" fill="#fff" stroke="rgba(15,163,150,.3)"/>
+          <text x="650" y="72" text-anchor="middle" font-family="Fraunces,serif" font-size="17" font-weight="600" fill="#0B8177">Verified</text>
+          <text x="650" y="95" text-anchor="middle" font-family="Archivo,sans-serif" font-size="11.5" fill="#35566A">Property confirms</text>
+          <text x="650" y="112" text-anchor="middle" font-family="Archivo,sans-serif" font-size="11.5" fill="#35566A">against code or link</text>
+        </g>
+        <g>
+          <rect x="770" y="40" width="200" height="92" rx="14" fill="#8FE0CD" stroke="rgba(11,129,119,.5)"/>
+          <text x="870" y="72" text-anchor="middle" font-family="Fraunces,serif" font-size="17" font-weight="600" fill="#0B3446">Paid</text>
+          <text x="870" y="95" text-anchor="middle" font-family="Archivo,sans-serif" font-size="11.5" fill="#0B3446">10% splits: 5% creator</text>
+          <text x="870" y="112" text-anchor="middle" font-family="Archivo,sans-serif" font-size="11.5" fill="#0B3446">in cash, 5% FETCH</text>
+        </g>
+        <text x="490" y="176" text-anchor="middle" font-family="Archivo,sans-serif" font-size="12.5" fill="#35566A">Money only moves at the last step — and only for a stay that actually happened.</text>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="tight">
+    <h2>The monthly reconciliation loop</h2>
+    <p class="lede">During the pilot, verification is deliberately manual. It's slower, and it's the only way to be certain the number is real before it gets automated.</p>
+    <div class="rail-steps">
+      <div class="rail-step"><span class="pillx">Step 1</span><b>Statement out</b><p>At month end FETCH generates a statement per property: every booking claimed against a code or tracked link, with the creator attached.</p></div>
+      <div class="rail-step"><span class="pillx">Step 2</span><b>Property confirms</b><p>The property ticks the stays that actually completed. Anything unconfirmed stays unbilled — silence never becomes a charge.</p></div>
+      <div class="rail-step"><span class="pillx">Step 3</span><b>Cross-check</b><p>Confirmations are matched back against the tap data. Mismatches get looked at by a person, not resolved by an algorithm.</p></div>
+      <div class="rail-step"><span class="pillx">Step 4</span><b>Payout</b><p>Commission is invoiced once and the creator's 5% is paid in cash. The record is visible to both sides afterwards.</p></div>
+    </div>
+    <p class="calc-note" style="margin-top:1.6rem">Later, PMS checkout webhooks (Guesty, Hostaway) replace steps 1–3 automatically. The code layer stays live permanently — it's the thing that survives when the click chain doesn't.</p>
+  </div>
+</section>
+
+<section class="band-sky">
+  <div class="tight">
+    <h2>Why this becomes the moat</h2>
+    <p class="lede">Every verified booking adds a row nobody else has: this creator, this property, this destination, this audience — this conversion rate.</p>
+    <div class="cards">
+      <div class="card"><h3>Nobody else has the last mile</h3><p>UGC platforms stop at views. Affiliate networks stop at clicks. The completed direct booking is the only event that proves value, and it's the one nobody was tracking.</p></div>
+      <div class="card"><h3>It compounds per region</h3><p>Density means real conversion rates for a corridor, not a global average that describes nothing. Each region proven makes the next one faster to open.</p></div>
+      <div class="card"><h3>It reprices creator work</h3><p>Once you can show what a post is worth in bookings, flat sponsorship fees start to look like guesswork — for both sides.</p></div>
+      <div class="card"><h3>It's not a booking engine</h3><p>FETCH never holds payment and never becomes merchant of record, so no property has to weigh giving up their guest to get the data.</p></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="tight">
+    <h2>See the records yourself</h2>
+    <p class="lede">The demo runs on the same data model as the pilot: tags, taps, bookings, verifications, payouts.</p>
+    <div class="cards">
+      <div class="card"><h3>Creator dashboard</h3><p>Links, taps, bookings and money owed — the creator's half of the record.</p><p style="margin-top:1.1rem"><a class="btn line small" href="/creator.html">Open</a></p></div>
+      <div class="card"><h3>Property dashboard</h3><p>Report a booking, confirm completed stays, and rank creators by proof.</p><p style="margin-top:1.1rem"><a class="btn line small" href="/property.html">Open</a></p></div>
+      <div class="card"><h3>Tag &amp; Prove</h3><p>The pilot tool: create a pairing, mint a link and code, log a booking, reconcile a month.</p><p style="margin-top:1.1rem"><a class="btn line small" href="/app.html">Open</a></p></div>
+    </div>
+  </div>
+</section>
+
+<section class="endcta">
+  <div class="tight">
+    <h2>One question, being answered by hand.</h2>
+    <p>Does creator content convert to direct bookings at a rate that pays everyone? The pilot exists to find out, and the answer will be published either way.</p>
+    <div class="hero-ctas">
+      <a class="btn" href="/#join">Join the pilot</a>
+      <a class="btn line" href="/about.html">Why FETCH exists</a>
+    </div>
+  </div>
+</section>
+
+<style>
+  .diagram-wrap{margin-top:2.3rem;overflow-x:auto;-webkit-overflow-scrolling:touch;background:#fff;border:1px solid var(--line);border-radius:18px;padding:1.4rem;box-shadow:0 12px 30px rgba(11,52,70,.07)}
+  .diagram-wrap svg{min-width:760px;width:100%;height:auto;display:block}
+</style>
+<!--FOOT--><footer class="site-foot">
+  <div class="foot-grid">
+    <div class="foot-brand">
+      <a href="/" aria-label="FETCH home"><img src="/logo.svg" alt="Fetch"></a>
+      <em>Travel content, made bookable. Creators earn cash on the direct bookings they drive — the property keeps the guest.</em>
+    </div>
+    <div>
+      <h4>Platform</h4>
+      <ul>
+        <li><a href="/creators.html">For creators</a></li>
+        <li><a href="/properties.html">For properties &amp; DMCs</a></li>
+        <li><a href="/network.html">The network</a></li>
+        <li><a href="/proof.html">How we prove it</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Company</h4>
+      <ul>
+        <li><a href="/pricing.html">Pricing</a></li>
+        <li><a href="/about.html">About FETCH</a></li>
+        <li><a href="/#faq">FAQ</a></li>
+        <li><a href="mailto:brian@brand-tastic.ca">Contact</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Demo</h4>
+      <ul>
+        <li><a href="/creator.html">Creator dashboard</a></li>
+        <li><a href="/property.html">Property dashboard</a></li>
+        <li><a href="/app.html">Tag &amp; Prove</a></li>
+        <li><a href="/#join">Join the pilot</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="foot-base">
+    <span>&copy; 2026 FETCH — The best trip is the next one.</span>
+    <span>Pilot build. Figures and profiles shown are illustrative. <a href="mailto:brian@brand-tastic.ca">brian@brand-tastic.ca</a></span>
+  </div>
+</footer><!--/FOOT-->
+<script src="/site.js"></script>
+</body>
+</html>

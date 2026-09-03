@@ -5,7 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>FETCH — Creator dashboard</title>
 <meta name="robots" content="noindex">
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Archivo:wght@400;500;600;700&family=Sacramento&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;1,9..144,600&family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/nav.css">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   :root{
@@ -26,7 +28,7 @@
   .btn:hover{background:var(--aqua-deep)}
   .btn.small{padding:.35rem .85rem;font-size:.85rem}
   :focus-visible{outline:2px solid var(--aqua);outline-offset:2px}
-  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1rem;margin:1.4rem 0 2rem}
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(160px,100%),1fr));gap:1rem;margin:1.4rem 0 2rem}
   .stat{background:#fff;border:1px solid var(--line);border-radius:14px;padding:1rem 1.1rem;box-shadow:0 8px 22px rgba(11,52,70,.07)}
   .stat b{display:block;font-family:'Fraunces',serif;font-size:1.6rem;color:var(--aqua-deep)}
   .stat span{color:var(--slate);font-size:.85rem}
@@ -51,12 +53,42 @@
   .fun b{display:block;font-family:'Fraunces',serif;font-size:1.3rem;color:var(--aqua-deep)}
   .fun span{color:var(--slate);font-size:.8rem}
   .fun-arrow{color:var(--aqua);font-size:1.2rem;font-weight:700}
+
+  /* fixed site nav clearance */
+  @media (max-width:680px){
+    .panel{overflow-x:auto;-webkit-overflow-scrolling:touch}
+    table{min-width:460px}
+    .stats,.funnel{gap:.7rem}
+  }
+  .wrap{padding-top:calc(var(--nav-h) + 1.6rem)}
+  @media (max-width:560px){ .wrap{padding-left:1rem;padding-right:1rem} }
 </style>
 </head>
 <body>
+<!--NAV--><nav class="nav">
+  <a class="nav-logo" href="/" aria-label="FETCH home"><img src="/logo.svg" alt="Fetch"></a>
+  <button class="nav-toggle" type="button" aria-label="Menu" aria-expanded="false" aria-controls="navLinks"><span></span></button>
+  <div class="nav-links" id="navLinks">
+    <a href="/creators.html">Creators</a>
+    <a href="/properties.html">Properties</a>
+    <a href="/network.html">Network</a>
+    <a href="/proof.html">Proof</a>
+    <a href="/pricing.html">Pricing</a>
+    <a href="/about.html">About</a>
+    <div class="nav-drop" data-open="false">
+      <button type="button" aria-expanded="false" aria-haspopup="true">Demo <span class="car">▼</span></button>
+      <div class="nav-drop-menu">
+        <a href="/creator.html"><b>Creator dashboard</b><span>Taps, bookings and what you're owed</span></a>
+        <a href="/property.html"><b>Property dashboard</b><span>Report stays, rank creators by proof</span></a>
+        <a href="/app.html"><b>Tag &amp; Prove</b><span>The pilot tool that runs attribution</span></a>
+        <p class="nav-drop-note">Demo data. Nothing here is a real booking.</p>
+      </div>
+    </div>
+    <div class="nav-cta"><a class="btn" href="/#join">Join the pilot</a></div>
+  </div>
+</nav><!--/NAV-->
 <div class="wrap">
   <header>
-    <a href="/" aria-label="FETCH home"><img src="/logo.svg" alt="Fetch" style="height:38px;display:block"></a>
     <div class="who">
       <label for="whoSel" style="color:var(--slate);font-size:.9rem">You are</label>
       <select id="whoSel" onchange="load()"></select>
@@ -169,7 +201,11 @@ async function fetchAll(){
 }
 
 async function init(){
-  if (!sb){ document.body.innerHTML = '<p style="padding:3rem;text-align:center">Connection unavailable. Try again shortly.</p>'; return; }
+  if (!sb){
+    var w = document.querySelector('.wrap');
+    if (w) w.innerHTML = '<div class="panel" style="margin-top:2rem;text-align:center"><h2>Connection unavailable</h2><p class="sub" style="margin:.5rem auto 0">The demo data service isn\'t reachable right now. Try again shortly, or head back to <a href="/" style="color:var(--gold);font-weight:600">the main site</a>.</p></div>';
+    return;
+  }
   try {
     cache = await fetchAll();
     const handles = [...new Set(cache.tags.map(t => t.creator_handle))].sort();
@@ -306,5 +342,45 @@ async function attachContent(){
 
 init();
 </script>
+<!--FOOT--><footer class="site-foot">
+  <div class="foot-grid">
+    <div class="foot-brand">
+      <a href="/" aria-label="FETCH home"><img src="/logo.svg" alt="Fetch"></a>
+      <em>Travel content, made bookable. Creators earn cash on the direct bookings they drive — the property keeps the guest.</em>
+    </div>
+    <div>
+      <h4>Platform</h4>
+      <ul>
+        <li><a href="/creators.html">For creators</a></li>
+        <li><a href="/properties.html">For properties &amp; DMCs</a></li>
+        <li><a href="/network.html">The network</a></li>
+        <li><a href="/proof.html">How we prove it</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Company</h4>
+      <ul>
+        <li><a href="/pricing.html">Pricing</a></li>
+        <li><a href="/about.html">About FETCH</a></li>
+        <li><a href="/#faq">FAQ</a></li>
+        <li><a href="mailto:brian@brand-tastic.ca">Contact</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Demo</h4>
+      <ul>
+        <li><a href="/creator.html">Creator dashboard</a></li>
+        <li><a href="/property.html">Property dashboard</a></li>
+        <li><a href="/app.html">Tag &amp; Prove</a></li>
+        <li><a href="/#join">Join the pilot</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="foot-base">
+    <span>&copy; 2026 FETCH — The best trip is the next one.</span>
+    <span>Pilot build. Figures and profiles shown are illustrative. <a href="mailto:brian@brand-tastic.ca">brian@brand-tastic.ca</a></span>
+  </div>
+</footer><!--/FOOT-->
+<script src="/site.js"></script>
 </body>
 </html>

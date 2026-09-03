@@ -1,0 +1,102 @@
+<header class="phero">
+  <div class="tight">
+    <p class="eyebrow">About</p>
+    <h1>Travel content sells trips. <em>Nothing proves it.</em></h1>
+    <p>A creator posts a cabin on a storm-lashed coast. Four thousand people save it. Eleven of them go. Nobody — not the creator, not the property, not the platform — can point to a single one of those trips and say that post did that. FETCH exists to close that gap.</p>
+    <div class="hero-ctas">
+      <a class="btn" href="/#join">Join the pilot</a>
+      <a class="btn line" href="/proof.html">How the proof works</a>
+    </div>
+  </div>
+</header>
+
+<section>
+  <div class="tight">
+    <h2>The gap in the middle</h2>
+    <div class="split">
+      <div>
+        <p class="lede" style="max-width:none">Intent for a trip is created long before anyone opens a search bar. It happens in a Reel at 11pm, in a Story someone screenshots, in a two-year-old TikTok about a town nobody had heard of. By the time a traveller reaches a booking page, the decision is largely made — and the platform that takes 20% of it had nothing to do with making it.</p>
+        <p class="lede" style="max-width:none;margin-top:1.1rem">Meanwhile the person who actually created that intent gets paid in exposure, or gets a flat fee that has no relationship to what the post did. And the independent property paying the toll never learns which content brought them a guest.</p>
+      </div>
+      <div>
+        <ul class="ticks">
+          <li><b>Creators</b> monetise everything about travel except the travel itself</li>
+          <li><b>Properties</b> pay the most for the guests they're least able to keep</li>
+          <li><b>Travellers</b> book somewhere worse than what they were shown, because it was easier</li>
+          <li><b>Nobody</b> holds the record that connects the content to the booking</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="band-mist">
+  <div class="tight">
+    <h2>What FETCH is</h2>
+    <p class="lede">An attribution and commission layer for direct travel bookings. A creator tags a place in content they already made; a traveller taps through and books direct on the property's own engine; the booking is verified; the creator gets paid in cash on the completed stay.</p>
+    <div class="cards">
+      <div class="card"><span class="n">1</span><h3>Not a marketplace</h3><p>We don't want travellers browsing FETCH. We want them booking you, direct, from the content that inspired them.</p></div>
+      <div class="card"><span class="n">2</span><h3>Not a booking engine</h3><p>The property's engine takes the booking. FETCH doesn't compete with it and never will.</p></div>
+      <div class="card"><span class="n">3</span><h3>Not an advertising product</h3><p>Nothing is charged for reach, impressions or placement. If no booking happens, nobody pays anything.</p></div>
+      <div class="card"><span class="n">4</span><h3>Invisible infrastructure</h3><p>The traveller never learns FETCH exists. The best version of this product is one nobody sees.</p></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="tight">
+    <h2>Four rules we don't break</h2>
+    <div class="cards">
+      <div class="card"><h3>Never hold the money</h3><p>FETCH never touches the traveller's payment and never becomes merchant of record. The property is paid directly, always.</p></div>
+      <div class="card"><h3>Never become a destination</h3><p>No competing booking engine, no consumer marketplace. The moment travellers search FETCH instead of you, we've broken the model.</p></div>
+      <div class="card"><h3>Never charge to join</h3><p>No listing fees, no subscriptions, no charge for hosted stays. Free for both sides, permanently.</p></div>
+      <div class="card"><h3>Never creep the take rate</h3><p>10%, split evenly. New fees would make FETCH another toll — which is the thing it was built to remove.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="band-sky">
+  <div class="tight">
+    <h2>Where we are right now</h2>
+    <p class="lede">Pilot phase, and deliberately unglamorous. The whole job at this stage is answering one question honestly.</p>
+    <div class="rail-steps">
+      <div class="rail-step"><span class="pillx">Now</span><b>Prove the number</b><p>One vertical on the BC coast. Ten properties, a handful of creators, every pairing set up and verified by hand. Promo codes and a simple tracked link — no platform required.</p></div>
+      <div class="rail-step"><span class="pillx">Next</span><b>Automate the proof</b><p>Conversion pixel plus PMS webhooks (Guesty, Hostaway), instant commission splits, and creator self-serve across the whole network.</p></div>
+      <div class="rail-step"><span class="pillx">Then</span><b>Scale through the pipes</b><p>PMS app marketplaces — one integration reaching thousands of properties — and publishing the conversion data the pilot produced.</p></div>
+      <div class="rail-step"><span class="pillx">Always</span><b>Density before coverage</b><p>Twenty bookable places in one region beats two hundred scattered. Each region gets proven before the next one opens.</p></div>
+    </div>
+    <p class="calc-note" style="margin-top:1.6rem">The question the pilot answers: does creator content convert to direct bookings at a rate that pays everyone? If the honest answer is no, that's worth knowing early.</p>
+  </div>
+</section>
+
+<section>
+  <div class="tight">
+    <div class="split" style="align-items:center">
+      <div>
+        <h2>The mascots</h2>
+        <p class="lede" style="max-width:none">A corgi and a black lab, because the whole idea is fetching something and bringing it back to the person it belongs to. They have opinions about direct bookings and no opinions about anything else.</p>
+        <div style="display:flex;gap:.9rem;margin-top:1.6rem;flex-wrap:wrap">
+          <img src="/corgi.png" alt="FETCH mascot — corgi" width="110" height="110" style="width:110px;height:auto">
+          <img src="/blacklab.png" alt="FETCH mascot — black lab" width="110" height="110" style="width:110px;height:auto">
+        </div>
+      </div>
+      <div class="card">
+        <h3>Get in touch</h3>
+        <p>Pilot enquiries, property listings, creator invites, or a hard question about the model — all go to the same inbox and get a real answer.</p>
+        <p style="margin-top:1.3rem"><a class="btn" href="mailto:brian@brand-tastic.ca">brian@brand-tastic.ca</a></p>
+        <p style="margin-top:1.1rem;color:var(--slate);font-size:.9rem">Based on the west coast of Canada. Building the first cohort in British Columbia, with Atlantic Canada queued next.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="endcta">
+  <div class="tight">
+    <h2>The trips you inspire should pay you back.</h2>
+    <p>That's the whole thesis. Everything else on this site is the machinery for making it true.</p>
+    <div class="hero-ctas">
+      <a class="btn" href="/#join">Join the pilot</a>
+      <a class="btn line" href="/pricing.html">See what it costs</a>
+    </div>
+  </div>
+</section>

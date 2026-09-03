@@ -27,7 +27,9 @@
 <meta name="twitter:description" content="The trips you inspire should pay you back. Creators earn cash on verified direct bookings.">
 <meta name="twitter:image" content="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&h=630&q=80">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Archivo:wght@400;500;600;700&family=Sacramento&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,600&family=Archivo:wght@400;500;600;700&family=Sacramento&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/site.css">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   :root{
@@ -50,25 +52,6 @@
   img{display:block;max-width:100%}
   a{color:inherit}
 
-  /* ---------- nav ---------- */
-  .nav{
-    position:fixed;inset:0 0 auto 0;z-index:50;display:flex;align-items:center;justify-content:space-between;
-    padding:.85rem 5vw;background:rgba(255,255,255,.82);backdrop-filter:blur(10px);
-    border-bottom:1px solid rgba(255,255,255,.4);
-  }
-    .nav-links{display:flex;gap:1.5rem;align-items:center;font-size:.95rem}
-  .nav-links a{text-decoration:none;color:var(--ink);opacity:.85;font-weight:500}
-  .nav-links a:hover{opacity:1;color:var(--aqua)}
-  .btn{
-    display:inline-block;background:var(--aqua);color:#fff;font-weight:700;text-decoration:none;
-    padding:.7rem 1.4rem;border-radius:999px;border:none;font:inherit;font-weight:700;cursor:pointer;
-    box-shadow:0 6px 18px rgba(15,163,150,.28);
-  }
-  .btn:hover{background:var(--aqua-deep)}
-  .btn.line{background:rgba(255,255,255,.92);color:var(--aqua-deep);border:1.5px solid var(--aqua);box-shadow:none}
-  .btn.line:hover{background:var(--mist)}
-  :focus-visible{outline:2px solid var(--aqua);outline-offset:3px}
-
   /* ---------- hero ---------- */
   .hero{position:relative;min-height:92vh;display:flex;align-items:flex-end;overflow:hidden}
   .hero img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
@@ -79,7 +62,6 @@
   h1 em{font-style:italic;color:var(--aqua)}
   .hero p{margin:1.25rem 0 1.75rem;font-size:1.15rem;color:var(--ink);font-weight:500;max-width:52ch}
   .hero-ctas{display:flex;gap:.9rem;flex-wrap:wrap}
-  .hero-credit{position:absolute;right:1rem;bottom:.8rem;z-index:2;font-size:.7rem;color:rgba(11,52,70,.4)}
 
   /* ---------- sections ---------- */
   section{padding:5.5rem 5vw}
@@ -108,14 +90,14 @@
   .reel .earn{position:absolute;left:.9rem;bottom:.85rem;z-index:2;font-size:.8rem;font-weight:700;color:var(--seafoam)}
 
   /* how it works */
-  .steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1.2rem;margin-top:2.4rem}
+  .steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(240px,100%),1fr));gap:1.2rem;margin-top:2.4rem}
   .step{background:#fff;border:1px solid var(--line);border-radius:16px;padding:1.6rem;box-shadow:0 10px 26px rgba(11,52,70,.07)}
   .step .n{font-family:'Fraunces',serif;font-size:2rem;color:var(--aqua)}
   .step h3{font-size:1.15rem;margin:.6rem 0 .45rem;color:var(--ink)}
   .step p{color:var(--slate);font-size:.97rem}
 
   /* audience split */
-  .split2{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:1.4rem;margin-top:2.4rem}
+  .split2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(320px,100%),1fr));gap:1.4rem;margin-top:2.4rem}
   .aud{position:relative;border-radius:20px;overflow:hidden;min-height:520px;display:flex;align-items:flex-end;box-shadow:0 18px 40px rgba(11,52,70,.16)}
   .aud img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
   .aud::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg, rgba(11,52,70,.08), rgba(11,52,70,.3) 45%, rgba(11,52,70,.9))}
@@ -128,7 +110,7 @@
 
   /* network band */
   .band{padding:0}
-  .band .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:4px}
+  .band .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(220px,100%),1fr));gap:4px}
   .tile{position:relative;aspect-ratio:4/3.4;overflow:hidden}
   .tile img{width:100%;height:100%;object-fit:cover;transition:transform .5s ease}
   .tile:hover img{transform:scale(1.04)}
@@ -140,14 +122,14 @@
 
   /* math strip */
   .math{background:linear-gradient(120deg, var(--sky), var(--mist));border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
-  .math .tight{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:1.6rem;text-align:center}
+  .math .tight{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(170px,100%),1fr));gap:1.6rem;text-align:center}
   .math b{display:block;font-family:'Fraunces',serif;font-size:2.1rem;color:var(--aqua-deep)}
   .math span{color:var(--slate);font-size:.92rem}
   .math .strike b{color:var(--slate);text-decoration:line-through;text-decoration-color:var(--coral)}
 
   /* waitlist */
   .join-wrap{background:linear-gradient(180deg, var(--paper), var(--sky))}
-  .forms{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:1.4rem;margin-top:2.4rem}
+  .forms{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(320px,100%),1fr));gap:1.4rem;margin-top:2.4rem}
   .form{background:#fff;border:1px solid var(--line);border-radius:16px;padding:1.8rem;box-shadow:0 12px 30px rgba(11,52,70,.08)}
   .form h3{font-family:'Fraunces',serif;font-size:1.45rem;margin-bottom:.35rem;color:var(--ink)}
   .form p{color:var(--slate);font-size:.95rem;margin-bottom:1.1rem}
@@ -161,28 +143,28 @@
   .msg.err{color:var(--coral);font-weight:600}
 
   /* money flow */
-  .flow{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1.2rem;margin-top:2.4rem}
+  .flow{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(220px,100%),1fr));gap:1.2rem;margin-top:2.4rem}
   .flow-step{background:#fff;border:1px solid var(--line);border-radius:16px;padding:1.5rem;box-shadow:0 10px 26px rgba(11,52,70,.07)}
   .flow-step b{font-family:'Fraunces',serif;font-size:1.15rem;color:var(--aqua-deep);display:block;margin-bottom:.5rem}
   .flow-step p{color:var(--slate);font-size:.95rem}
 
   /* attribution */
   .attrib{background:linear-gradient(120deg, var(--mist), var(--sky))}
-  .attrib-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1.2rem;margin-top:2.4rem}
+  .attrib-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(300px,100%),1fr));gap:1.2rem;margin-top:2.4rem}
   .attrib-card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:1.7rem;box-shadow:0 10px 26px rgba(11,52,70,.07)}
   .attrib-card h3{font-family:'Fraunces',serif;font-size:1.3rem;color:var(--ink);margin-bottom:.55rem}
   .attrib-card p{color:var(--slate);font-size:.97rem}
   .attrib-note{margin-top:1.6rem;color:var(--ink);font-weight:600;max-width:64ch}
 
   /* promises */
-  .promise-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:1.2rem;margin-top:2.4rem}
+  .promise-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(250px,100%),1fr));gap:1.2rem;margin-top:2.4rem}
   .promise{border-left:3px solid var(--aqua);padding:.4rem 0 .4rem 1.2rem}
   .promise b{display:block;color:var(--ink);font-size:1.05rem;margin-bottom:.35rem}
   .promise p{color:var(--slate);font-size:.95rem}
 
   /* faq */
   .faq{background:var(--mist)}
-  .faq-cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:2.4rem;margin-top:2rem}
+  .faq-cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(320px,100%),1fr));gap:2.4rem;margin-top:2rem}
   .faq-head{font-family:'Fraunces',serif;font-size:1.3rem;color:var(--aqua-deep);margin-bottom:1rem}
   details{background:#fff;border:1px solid var(--line);border-radius:12px;margin-bottom:.7rem;overflow:hidden}
   summary{cursor:pointer;padding:1rem 1.2rem;font-weight:600;color:var(--ink);list-style:none;position:relative;padding-right:2.6rem}
@@ -192,7 +174,7 @@
   details p{padding:0 1.2rem 1.1rem;color:var(--slate);font-size:.95rem}
 
   /* featured cards */
-  .feat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:1.2rem;margin-top:2.4rem}
+  .feat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(230px,100%),1fr));gap:1.2rem;margin-top:2.4rem}
   .feat{background:#fff;border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:0 14px 32px rgba(11,52,70,.1)}
   .feat img{width:100%;aspect-ratio:4/3;object-fit:cover}
   .feat-body{padding:1.1rem 1.2rem 1.3rem}
@@ -205,32 +187,53 @@
   .mascots img{width:86px;height:86px}
   .mascot-note{color:var(--ink);font-size:.9rem;margin-bottom:1.4rem;font-style:italic}
 
-  footer{padding:3rem 5vw 4rem;color:var(--slate);font-size:.9rem;border-top:1px solid var(--line);background:var(--sky)}
-  .foot{display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap;max-width:1160px;margin:0 auto;align-items:center}
-  .foot-wrap{display:flex;align-items:center;gap:.9rem;flex-wrap:wrap}
-  .foot-wrap em{font-style:normal;color:var(--slate)}
-  
-  footer a{color:var(--aqua-deep);text-decoration:none;font-weight:600}
 
+  @media (max-width:900px){
+    section{padding:4.2rem 6vw}
+  }
   @media (max-width:640px){
-    .nav-links a.hide-sm{display:none}
-    .hero{min-height:86vh}
-    section{padding:4rem 5vw}
-    .aud{min-height:440px}
+    .hero{min-height:84vh}
+    .hero-inner{padding:0 6vw 6vh}
+    section{padding:3.4rem 6vw}
+    .aud{min-height:400px}
+    .aud-inner{padding:1.5rem 1.3rem}
+    .hero p{font-size:1.04rem}
+    .reel{flex:0 0 208px}
+    .rail{gap:.8rem}
+    .math .tight{gap:1.2rem}
+    .mascots img{width:70px;height:70px}
+    .hero-ctas .btn{flex:1 1 100%}
+    .form{padding:1.4rem}
+  }
+  @media (max-width:380px){
+    .math .tight{grid-template-columns:1fr}
   }
 </style>
 </head>
 <body>
 
-<nav class="nav">
-  <a href="#top" aria-label="FETCH home"><img src="/logo.svg" alt="Fetch" style="height:52px;display:block"></a>
-  <div class="nav-links">
-    <a href="#how" class="hide-sm">How it works</a>
-    <a href="/creator.html">Creator dashboard</a>
-    <a href="/property.html">Property dashboard</a>
-    <a class="btn line" href="/app.html">Live demo</a>
+<!--NAV--><nav class="nav">
+  <a class="nav-logo" href="/" aria-label="FETCH home"><img src="/logo.svg" alt="Fetch"></a>
+  <button class="nav-toggle" type="button" aria-label="Menu" aria-expanded="false" aria-controls="navLinks"><span></span></button>
+  <div class="nav-links" id="navLinks">
+    <a href="/creators.html">Creators</a>
+    <a href="/properties.html">Properties</a>
+    <a href="/network.html">Network</a>
+    <a href="/proof.html">Proof</a>
+    <a href="/pricing.html">Pricing</a>
+    <a href="/about.html">About</a>
+    <div class="nav-drop" data-open="false">
+      <button type="button" aria-expanded="false" aria-haspopup="true">Demo <span class="car">▼</span></button>
+      <div class="nav-drop-menu">
+        <a href="/creator.html"><b>Creator dashboard</b><span>Taps, bookings and what you're owed</span></a>
+        <a href="/property.html"><b>Property dashboard</b><span>Report stays, rank creators by proof</span></a>
+        <a href="/app.html"><b>Tag &amp; Prove</b><span>The pilot tool that runs attribution</span></a>
+        <p class="nav-drop-note">Demo data. Nothing here is a real booking.</p>
+      </div>
+    </div>
+    <div class="nav-cta"><a class="btn" href="/#join">Join the pilot</a></div>
   </div>
-</nav>
+</nav><!--/NAV-->
 
 <!-- HERO -->
 <header class="hero" id="top">
@@ -244,7 +247,6 @@
       <a class="btn line" href="#properties">I run a property</a>
     </div>
   </div>
-  <span class="hero-credit">Photography via Unsplash</span>
 </header>
 
 <!-- REEL RAIL -->
@@ -610,13 +612,47 @@
 </section>
 </div>
 
-<footer>
-  <div class="foot">
-    <div class="foot-wrap"><img src="/logo.svg" alt="Fetch" style="height:34px;display:block"><em>The best trip is the next one.</em></div>
-    <div><a href="/creator.html">Creator dashboard</a> · <a href="/property.html">Property dashboard</a> · <a href="/app.html">Live demo</a> · <a href="mailto:brian@brand-tastic.ca">brian@brand-tastic.ca</a></div>
+<!--FOOT--><footer class="site-foot">
+  <div class="foot-grid">
+    <div class="foot-brand">
+      <a href="/" aria-label="FETCH home"><img src="/logo.svg" alt="Fetch"></a>
+      <em>Travel content, made bookable. Creators earn cash on the direct bookings they drive — the property keeps the guest.</em>
+    </div>
+    <div>
+      <h4>Platform</h4>
+      <ul>
+        <li><a href="/creators.html">For creators</a></li>
+        <li><a href="/properties.html">For properties &amp; DMCs</a></li>
+        <li><a href="/network.html">The network</a></li>
+        <li><a href="/proof.html">How we prove it</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Company</h4>
+      <ul>
+        <li><a href="/pricing.html">Pricing</a></li>
+        <li><a href="/about.html">About FETCH</a></li>
+        <li><a href="/#faq">FAQ</a></li>
+        <li><a href="mailto:brian@brand-tastic.ca">Contact</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Demo</h4>
+      <ul>
+        <li><a href="/creator.html">Creator dashboard</a></li>
+        <li><a href="/property.html">Property dashboard</a></li>
+        <li><a href="/app.html">Tag &amp; Prove</a></li>
+        <li><a href="/#join">Join the pilot</a></li>
+      </ul>
+    </div>
   </div>
-</footer>
+  <div class="foot-base">
+    <span>&copy; 2026 FETCH — The best trip is the next one.</span>
+    <span>Pilot build. Figures and profiles shown are illustrative. <a href="mailto:brian@brand-tastic.ca">brian@brand-tastic.ca</a></span>
+  </div>
+</footer><!--/FOOT-->
 
+<script src="/site.js"></script>
 <script>
 const SB_URL = 'https://sqzuvtshebrgzivyzyif.supabase.co';
 const SB_KEY = 'sb_publishable_xbumKc7i0RuG4ARzSSB40w_jOuv0ihq';

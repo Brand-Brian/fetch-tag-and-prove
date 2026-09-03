@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FETCH — For creators</title>
+<meta name="description" content="Earn 5% cash on the direct bookings your travel content drives. Tag places you have already posted about. No follower minimum, no fees, no exclusivity.">
+<link rel="canonical" href="https://fetch-and-prove.netlify.app/creators.html">
+<meta name="theme-color" content="#0FA396">
+<link rel="icon" type="image/png" href="/corgi.png">
+<link rel="apple-touch-icon" href="/corgi.png">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="FETCH">
+<meta property="og:title" content="FETCH — For creators">
+<meta property="og:description" content="Earn 5% cash on the direct bookings your travel content drives. Tag places you have already posted about. No follower minimum, no fees, no exclusivity.">
+<meta property="og:url" content="https://fetch-and-prove.netlify.app/creators.html">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,600&family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/site.css">
+</head>
+<body>
+<!--NAV--><nav class="nav">
+  <a class="nav-logo" href="/" aria-label="FETCH home"><img src="/logo.svg" alt="Fetch"></a>
+  <button class="nav-toggle" type="button" aria-label="Menu" aria-expanded="false" aria-controls="navLinks"><span></span></button>
+  <div class="nav-links" id="navLinks">
+    <a href="/creators.html">Creators</a>
+    <a href="/properties.html">Properties</a>
+    <a href="/network.html">Network</a>
+    <a href="/proof.html">Proof</a>
+    <a href="/pricing.html">Pricing</a>
+    <a href="/about.html">About</a>
+    <div class="nav-drop" data-open="false">
+      <button type="button" aria-expanded="false" aria-haspopup="true">Demo <span class="car">▼</span></button>
+      <div class="nav-drop-menu">
+        <a href="/creator.html"><b>Creator dashboard</b><span>Taps, bookings and what you're owed</span></a>
+        <a href="/property.html"><b>Property dashboard</b><span>Report stays, rank creators by proof</span></a>
+        <a href="/app.html"><b>Tag &amp; Prove</b><span>The pilot tool that runs attribution</span></a>
+        <p class="nav-drop-note">Demo data. Nothing here is a real booking.</p>
+      </div>
+    </div>
+    <div class="nav-cta"><a class="btn" href="/#join">Join the pilot</a></div>
+  </div>
+</nav><!--/NAV-->
+<header class="phero">
+  <div class="tight">
+    <p class="eyebrow">For creators</p>
+    <h1>Your back catalogue is an <em>unpaid sales team</em>.</h1>
+    <p>Every trip you've ever posted sent someone somewhere. Nobody ever paid you for it. FETCH makes the content you already made bookable — and pays you cash when the stay actually happens.</p>
+    <div class="hero-ctas">
+      <a class="btn" href="/#join">Request an invite</a>
+      <a class="btn line" href="/creator.html">See the creator dashboard</a>
+    </div>
+  </div>
+</header>
+
+<section class="strip">
+  <div class="tight">
+    <div><b>5%</b><span>Cash on every verified booking</span></div>
+    <div><b>$0</b><span>Cost to join, ever</span></div>
+    <div><b>Any size</b><span>No follower minimum</span></div>
+    <div><b>Your content</b><span>No briefs, no approvals, no exclusivity</span></div>
+  </div>
+</section>
+
+<section>
+  <div class="tight">
+    <h2>What you'd actually earn</h2>
+    <p class="lede">Move the sliders. This is 5% of the booking value on stays that complete — the same maths the dashboard runs.</p>
+    <div class="split calc-split">
+      <div class="calc">
+        <h3>Creator earnings estimator</h3>
+        <p class="hint">Most pilot creators sit at 2–6 bookings a month once a handful of posts are tagged.</p>
+        <div class="calc-row">
+          <label for="rate">Average nightly rate <output id="rateOut">$320</output></label>
+          <input id="rate" type="range" min="90" max="900" step="10" value="320">
+        </div>
+        <div class="calc-row">
+          <label for="nights">Average length of stay <output id="nightsOut">3 nights</output></label>
+          <input id="nights" type="range" min="1" max="10" step="1" value="3">
+        </div>
+        <div class="calc-row">
+          <label for="bookings">Bookings your content drives per month <output id="bookingsOut">4</output></label>
+          <input id="bookings" type="range" min="1" max="30" step="1" value="4">
+        </div>
+        <div class="calc-out">
+          <div class="muted"><b id="outBooking">$960</b><span>Value of one booking</span></div>
+          <div><b id="outMonth">$192</b><span>Your cash per month</span></div>
+          <div><b id="outYear">$2,304</b><span>Over a year</span></div>
+        </div>
+        <p class="calc-note">Illustrative only. Commission is paid on completed stays — cancellations and no-shows pay nothing, to anyone.</p>
+      </div>
+      <div>
+        <h3 style="font-size:1.3rem">Why this beats a brand fee</h3>
+        <ul class="ticks">
+          <li><b>It doesn't stop.</b> A flat fee pays once. A tagged post keeps earning every time someone books from it — this year and next.</li>
+          <li><b>It scales with taste, not reach.</b> 4,000 people who trust you can out-earn 400,000 who scroll past.</li>
+          <li><b>No pitching.</b> You don't negotiate a rate card with every property. The rate is the rate: 5%.</li>
+          <li><b>It's cash.</b> Not credits, not discounts, not "exposure", not a free night you have to fly to.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="band-mist">
+  <div class="tight">
+    <h2>Three steps, and none of them change how you post</h2>
+    <div class="cards">
+      <div class="card"><span class="n">1</span><h3>Tag a place</h3><p>Pick a property from the network — or one you've already posted about. FETCH mints a tracked link and a promo code for that exact pairing. Takes about a minute.</p></div>
+      <div class="card"><span class="n">2</span><h3>Put it where taps happen</h3><p>Bio link, Stories sticker, pinned comment, auto-DM reply. Someone taps, lands on the property's own booking page, and books at the normal price.</p></div>
+      <div class="card"><span class="n">3</span><h3>Get paid on the stay</h3><p>When the guest checks out and the booking is verified, your 5% is cash owed. You watch it move from tapped to booked to paid in your dashboard.</p></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="tight">
+    <div class="split">
+      <div>
+        <h2>The old-content unlock</h2>
+        <p class="lede">This is the part creators care about most. A Reel you posted two summers ago is still sending people to that town. Attach it to a property in the network and it starts earning from the next tap — no reshoot, no repost, no new caption.</p>
+        <ul class="ticks">
+          <li>Attach any existing Reel, TikTok, Short or Story highlight</li>
+          <li>Works on posts of any age, as long as the place is in the network</li>
+          <li>One post can be tagged to more than one property in the same destination</li>
+          <li>You can detach a tag at any time — it's your content</li>
+        </ul>
+      </div>
+      <div>
+        <h2>Hosted stays, without the catch</h2>
+        <p class="lede">Properties in the network can invite you to stay, and you can ask them. FETCH never charges either side for arranging it — no FAM fee, no placement fee, no cut of the room.</p>
+        <ul class="ticks">
+          <li>Request a hosted stay from any property in the network</li>
+          <li>Get flagged to properties when you're already headed their way</li>
+          <li>Anything your content books afterwards still pays your full 5%</li>
+          <li>No deliverable quotas — the booking data is the deliverable</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="band-sky">
+  <div class="tight">
+    <h2>What FETCH will never ask of you</h2>
+    <div class="cards">
+      <div class="card"><h3>Exclusivity</h3><p>Keep every brand deal, affiliate link and sponsorship you already have. FETCH sits alongside them.</p></div>
+      <div class="card"><h3>A content calendar</h3><p>No briefs, no approval queues, no posting minimums. Make what you were going to make.</p></div>
+      <div class="card"><h3>Your audience data</h3><p>We track bookings, not followers. Your list, your DMs and your relationships stay yours.</p></div>
+      <div class="card"><h3>A joining fee</h3><p>Free to join, free to stay. If a booking never happens, FETCH never earns and neither do you.</p></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="tight">
+    <h2>Creator questions</h2>
+    <div style="margin-top:1.8rem;max-width:820px">
+      <details><summary>How big does my audience need to be?</summary><p>There's no minimum. FETCH pays on conversion, not reach. The pilot cohort is picked on fit with the destination and how much an audience trusts a recommendation — not follower count.</p></details>
+      <details><summary>When do I actually get paid?</summary><p>After the guest's stay completes and the property confirms it. Cash, not credits. During the pilot payouts run monthly against a reconciliation statement; instant splits come with the full platform.</p></details>
+      <details><summary>What if someone books a week later, on a laptop?</summary><p>That's what the code is for. Links break across devices; codes don't. If your code is on the reservation, the credit is yours regardless of when or where it was made. <a href="/proof.html" style="color:var(--aqua-deep);font-weight:600">See how attribution works</a>.</p></details>
+      <details><summary>Does the traveller pay more?</summary><p>Never. Same room, same rate, same booking page they'd get going direct. The only difference is that you get credited for the demand.</p></details>
+      <details><summary>What happens if a booking is cancelled?</summary><p>Nothing is owed and nothing is paid. Commission only exists on a completed stay — that's what keeps properties comfortable paying it.</p></details>
+      <details><summary>Can I see what's converting?</summary><p>Yes. The creator dashboard shows taps, bookings, verified stays and money owed per link — the same records the property sees. <a href="/creator.html" style="color:var(--aqua-deep);font-weight:600">Open the demo dashboard</a>.</p></details>
+    </div>
+  </div>
+</section>
+
+<section class="endcta">
+  <div class="tight">
+    <h2>The first cohort is small on purpose.</h2>
+    <p>BC coast, hand-matched pairings, every booking verified by hand so the proof is airtight. If that's your patch, come in early.</p>
+    <div class="hero-ctas">
+      <a class="btn" href="/#join">Request an invite</a>
+      <a class="btn line" href="/network.html">Browse the network</a>
+    </div>
+  </div>
+</section>
+
+<script>
+(function(){
+  var r=document.getElementById('rate'),n=document.getElementById('nights'),b=document.getElementById('bookings');
+  if(!r) return;
+  var f=function(v){return '$'+Math.round(v).toLocaleString('en-US')};
+  function calc(){
+    var rate=+r.value,nights=+n.value,bk=+b.value;
+    var booking=rate*nights, month=booking*bk*0.05;
+    document.getElementById('rateOut').textContent=f(rate);
+    document.getElementById('nightsOut').textContent=nights+(nights===1?' night':' nights');
+    document.getElementById('bookingsOut').textContent=bk;
+    document.getElementById('outBooking').textContent=f(booking);
+    document.getElementById('outMonth').textContent=f(month);
+    document.getElementById('outYear').textContent=f(month*12);
+  }
+  [r,n,b].forEach(function(el){el.addEventListener('input',calc)});
+  calc();
+})();
+</script>
+<!--FOOT--><footer class="site-foot">
+  <div class="foot-grid">
+    <div class="foot-brand">
+      <a href="/" aria-label="FETCH home"><img src="/logo.svg" alt="Fetch"></a>
+      <em>Travel content, made bookable. Creators earn cash on the direct bookings they drive — the property keeps the guest.</em>
+    </div>
+    <div>
+      <h4>Platform</h4>
+      <ul>
+        <li><a href="/creators.html">For creators</a></li>
+        <li><a href="/properties.html">For properties &amp; DMCs</a></li>
+        <li><a href="/network.html">The network</a></li>
+        <li><a href="/proof.html">How we prove it</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Company</h4>
+      <ul>
+        <li><a href="/pricing.html">Pricing</a></li>
+        <li><a href="/about.html">About FETCH</a></li>
+        <li><a href="/#faq">FAQ</a></li>
+        <li><a href="mailto:brian@brand-tastic.ca">Contact</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Demo</h4>
+      <ul>
+        <li><a href="/creator.html">Creator dashboard</a></li>
+        <li><a href="/property.html">Property dashboard</a></li>
+        <li><a href="/app.html">Tag &amp; Prove</a></li>
+        <li><a href="/#join">Join the pilot</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="foot-base">
+    <span>&copy; 2026 FETCH — The best trip is the next one.</span>
+    <span>Pilot build. Figures and profiles shown are illustrative. <a href="mailto:brian@brand-tastic.ca">brian@brand-tastic.ca</a></span>
+  </div>
+</footer><!--/FOOT-->
+<script src="/site.js"></script>
+</body>
+</html>

@@ -212,8 +212,16 @@ async function init(){
     cache = await fetchAll();
     const handles = [...new Set(cache.tags.map(t => t.creator_handle))].sort();
     const urlH = new URLSearchParams(location.search).get('h');
+    // open on whoever has something to show, so the dashboard never lands empty
+    const codeOwner = Object.fromEntries(cache.tags.map(t => [t.code, t.creator_handle]));
+    const activity = {};
+    handles.forEach(h => activity[h] = 0);
+    cache.clicks.forEach(c => { const h = codeOwner[c.code]; if (h) activity[h] += 1; });
+    cache.bookings.forEach(b => { const h = codeOwner[b.code]; if (h) activity[h] += 50; });
+    const busiest = handles.slice().sort((a,b) => activity[b] - activity[a])[0];
+    const pick = (urlH && handles.includes(urlH)) ? urlH : busiest;
     $('whoSel').innerHTML = handles.length
-      ? handles.map(h => `<option ${h===urlH?'selected':''}>${esc(h)}</option>`).join('')
+      ? handles.map(h => `<option ${h===pick?'selected':''}>${esc(h)}</option>`).join('')
       : '<option value="">No creators yet</option>';
     load();
   } catch(e){ $('stats').innerHTML = '<p class="empty">Could not load: '+esc(e.message)+'</p>'; }

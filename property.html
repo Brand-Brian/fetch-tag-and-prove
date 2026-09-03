@@ -213,8 +213,16 @@ async function init(){
   try {
     cache = await fetchAll();
     const urlP = new URLSearchParams(location.search).get('p');
+    // open on whichever property has something to show
+    const propOfCode = Object.fromEntries(cache.tags.map(t => [t.code, t.property_id]));
+    const activity = {};
+    cache.props.forEach(p => activity[p.id] = 0);
+    cache.clicks.forEach(c => { const id = propOfCode[c.code]; if (id in activity) activity[id] += 1; });
+    cache.bookings.forEach(b => { const id = propOfCode[b.code]; if (id in activity) activity[id] += 50; });
+    const busiest = cache.props.slice().sort((a,b) => activity[b.id] - activity[a.id])[0];
+    const pick = (urlP && cache.props.some(p => p.id === urlP)) ? urlP : (busiest && busiest.id);
     $('whoSel').innerHTML = cache.props.length
-      ? cache.props.map(p => `<option value="${p.id}" ${p.id===urlP?'selected':''}>${esc(p.name)}</option>`).join('')
+      ? cache.props.map(p => `<option value="${p.id}" ${p.id===pick?'selected':''}>${esc(p.name)}</option>`).join('')
       : '<option value="">No properties yet</option>';
     load();
   } catch(e){ $('stats').innerHTML = '<p class="empty">Could not load: '+esc(e.message)+'</p>'; }

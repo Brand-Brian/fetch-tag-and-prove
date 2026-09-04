@@ -141,10 +141,11 @@
   <header>
     <div class="mode" id="modeBadge">Demo mode — nothing is saved</div>
   </header>
-  <p class="strap">Admin — the whole network from back of house. Tags, bookings, reconciliation, and everyone knocking on the door. Dashboards: <a href="/creator.html" style="color:var(--gold)">creator</a> · <a href="/property.html" style="color:var(--gold)">property</a></p>
+  <p class="strap"><b style="color:var(--cream)">Admin demo.</b> The whole network from back of house: who is tagging what, which bookings landed, how each one was attributed, and what is owed to whom. Everything below runs on the same records the creator and property dashboards read. Dashboards: <a href="/creator.html" style="color:var(--gold)">creator</a> · <a href="/property.html" style="color:var(--gold)">property</a></p>
 
   <nav id="nav" class="tabnav">
-    <button data-t="check" class="on">Check a video</button>
+    <button data-t="overview" class="on">Overview</button>
+    <button data-t="check">Check a video</button>
     <button data-t="tag">Create a tag</button>
     <button data-t="book">Log a booking</button>
     <button data-t="proof">Proof</button>
@@ -155,8 +156,27 @@
     <button data-t="setup">Setup</button>
   </nav>
 
+  <!-- OVERVIEW -->
+  <section id="overview" class="on">
+    <h2>Where the network stands</h2>
+    <p class="sub">The pilot in one screen. Supply on the left, what the content did in the middle, money on the right. Commission is only ever due on a stay that actually completed.</p>
+    <div class="totals" id="ovSupply"></div>
+    <div class="totals" id="ovFunnel" style="margin-top:1rem"></div>
+    <div class="totals" id="ovMoney" style="margin-top:1rem"></div>
+    <div class="panel" style="margin-top:1.25rem">
+      <h3 style="font-family:'Fraunces',serif;font-size:1.05rem;margin-bottom:.3rem">How bookings were attributed</h3>
+      <p class="sub" style="margin-bottom:.9rem">The first question anyone serious asks about the dataset. It is a column, not a story.</p>
+      <div id="ovAttrib"></div>
+    </div>
+    <div class="panel">
+      <h3 style="font-family:'Fraunces',serif;font-size:1.05rem;margin-bottom:.3rem">Booking lifecycle</h3>
+      <p class="sub" style="margin-bottom:.9rem">Reported means a booking was logged. Verified means the stay completed. Paid means the creator has the money.</p>
+      <div id="ovLifecycle"></div>
+    </div>
+  </section>
+
   <!-- CHECK A VIDEO -->
-  <section id="check" class="on">
+  <section id="check">
     <h2>Is this video bookable?</h2>
     <p class="sub">Paste any Instagram Reel or TikTok link. If the creator is in the network, you get their tracked link and code on the spot. If not, it's saved as a lead.</p>
     <div class="panel">
@@ -626,6 +646,64 @@ async function logBooking(){
 
 /* ---------------- proof ---------------- */
 let proofCache = [];
+async function renderOverview(){
+  const [props, tags, bookings, clicks, content] = await Promise.all([
+    dbList('network_properties'), dbList('tags'), dbList('bookings'),
+    sb.from('click_counts').select('*').then(r => r.data || []),
+    dbList('tag_content').catch(() => []),
+  ]);
+  const taps = clicks.reduce((a,c) => a + (c.taps || 0), 0);
+  const creators = new Set(tags.map(t => t.creator_handle)).size;
+  const pieces = tags.filter(t => t.content_url).length + (content || []).length;
+  const done = bookings.filter(b => b.status === 'verified' || b.status === 'paid');
+  const gmv = done.reduce((a,b) => a + Number(b.booking_value), 0);
+  const camt = b => Number(b.creator_amount ?? b.booking_value * 0.05);
+  const toCreators = done.reduce((a,b) => a + camt(b), 0);
+  const conv = taps ? (bookings.length / taps * 100) : 0;
+
+  $('ovSupply').innerHTML = `
+    <div class="tot"><b>${props.length}</b><span>Properties in the network</span></div>
+    <div class="tot"><b>${creators}</b><span>Creators tagging</span></div>
+    <div class="tot"><b>${pieces}</b><span>Pieces of content live</span></div>
+    <div class="tot"><b>${tags.length}</b><span>Tracked links issued</span></div>`;
+
+  $('ovFunnel').innerHTML = `
+    <div class="tot"><b>${taps.toLocaleString('en-CA')}</b><span>Link taps</span></div>
+    <div class="tot"><b>${bookings.length}</b><span>Bookings logged</span></div>
+    <div class="tot"><b>${conv.toFixed(2)}%</b><span>Taps that became bookings</span></div>
+    <div class="tot"><b>${done.length}</b><span>Stays completed</span></div>`;
+
+  $('ovMoney').innerHTML = `
+    <div class="tot"><b>${money(gmv)}</b><span>Verified direct GMV</span></div>
+    <div class="tot"><b>${money(gmv * 0.10)}</b><span>Commission at 10%</span></div>
+    <div class="tot"><b>${money(toCreators)}</b><span>Earned by creators</span></div>
+    <div class="tot"><b>${money(gmv * 0.05)}</b><span>Earned by FETCH</span></div>`;
+
+  const bar = (rows, total) => !total ? '<div class="empty">Nothing to show yet.</div>' :
+    rows.filter(r => r.n).map(r => `
+      <div style="display:grid;grid-template-columns:170px 1fr 92px;gap:.8rem;align-items:center;margin-bottom:.5rem">
+        <span style="font-size:.9rem;color:var(--gray)">${esc(r.label)}</span>
+        <div style="height:18px;background:rgba(255,255,255,.06);border-radius:3px;overflow:hidden">
+          <div style="height:100%;width:${(r.n/total*100).toFixed(1)}%;background:${r.colour};border-radius:3px"></div>
+        </div>
+        <span style="font-family:'Archivo Narrow';font-size:.86rem;text-align:right">${r.n} · ${(r.n/total*100).toFixed(0)}%</span>
+      </div>`).join('');
+
+  const by = k => bookings.filter(b => (b.verified_by || 'property_reported') === k).length;
+  $('ovAttrib').innerHTML = bar([
+    {label:'Conversion pixel', n:by('pixel'), colour:'var(--gold)'},
+    {label:'PMS webhook', n:by('webhook'), colour:'#5FBE8C'},
+    {label:'Property reported', n:by('property_reported'), colour:'#7FA6B8'},
+  ], bookings.length);
+
+  const st = k => bookings.filter(b => (b.status || 'reported') === k).length;
+  $('ovLifecycle').innerHTML = bar([
+    {label:'Reported', n:st('reported'), colour:'#7FA6B8'},
+    {label:'Verified — stay done', n:st('verified'), colour:'var(--gold)'},
+    {label:'Paid', n:st('paid'), colour:'#5FBE8C'},
+  ], bookings.length);
+}
+
 async function renderProof(){
   const [bookings, tags, props] = await Promise.all([dbList('bookings'), dbList('tags'), dbList('network_properties')]);
   const tagById = Object.fromEntries(tags.map(t => [t.id, t]));
@@ -953,7 +1031,7 @@ $('nav').addEventListener('click', e => {
 });
 
 async function refreshAll(){
-  try { await Promise.all([renderNetwork(), renderTags(), renderProof(), renderInbox(), renderPayouts()]); }
+  try { await Promise.all([renderOverview(), renderNetwork(), renderTags(), renderProof(), renderInbox(), renderPayouts()]); }
   catch(e){ flash('setupFlash', 'Could not load data: ' + e.message + ' — check the schema ran in Supabase.', false); }
 }
 

@@ -9,64 +9,33 @@ Status as of **14 September 2026**.
 
 ## Already done — no action needed
 
-**Netlify production environment variables are set.** The project had zero
-variables; nothing was overwritten.
+Done directly through the Netlify and Supabase connectors, which reach both
+services from a cloud session. (A pasted Supabase *access token* would not have
+worked: the sandbox shell cannot reach `supabase.com` at all. Connector traffic
+routes outside it.)
 
-| Key | Context | Scope | Value |
-|---|---|---|---|
-| `SB_URL` | production | builds, functions | `https://sqzuvtshebrgzivyzyif.supabase.co` |
-| `SB_KEY` | production | builds, functions | production publishable key |
+**`waitlist` created in production**, as migration `create_waitlist_insert_only`
+— insert-only, `status` column included, and without the `admin.sql` /
+`manage.sql` policies. Verified by role rather than assumed: as `anon` the
+insert succeeds and a select back returns **0 rows**, which is exactly the
+intended shape. Test row deleted. **Signups on the live site now record for the
+first time.**
 
-Both values are already public — they sit in the page source of four files in a
-public repo — so setting them changed no exposure. They do nothing yet either:
-nothing reads them until the build step stamps them, which is the open
-client-credential decision. They are in place so the contract exists.
+**`fetch-staging` created** — ref `crvuzehuiluoxqehtcta`, us-east-2, CTMS Travel
+org, $10/month, approved by Brian 14 Sep. Deliberately empty: the schema arrives
+in session 02 as versioned migrations.
+
+**All six Netlify environment variables set and verified.** `SB_URL` and
+`SB_KEY` across production, branch-deploy and deploy-preview, each scoped builds
++ functions. Full table in `docs/environments.md`.
+
+**Checked while in there:** no tag in production has a `fetch.travel`
+destination or points back at `/go.html`, and all 12 properties have a booking
+URL — so the two link bugs fixed in this session were latent, not live.
 
 ---
 
-## 1. Apply `create-waitlist.sql` — 2 minutes
-
-**Signups on the live site have never been recorded.** `index.html` inserts into
-`waitlist`; the table does not exist in production.
-
-Supabase dashboard → the production project (`sqzuvtshebrgzivyzyif`) → SQL
-Editor → New query → paste `create-waitlist.sql` → Run.
-
-**Do not run `admin.sql` or `manage.sql.`** Both are headed "run once in
-Supabase" and read like setup steps. They add `for select using (true)` and
-`for update using (true)` to a table about to hold real names and email
-addresses, on a key the whole internet has. Read signups in the Supabase
-dashboard until session 04. `create-waitlist.sql` already includes the `status`
-column that `manage.sql` was there for.
-
-**Worked when:** submit the creator form on the live site and the thank-you
-message appears instead of *"That didn't save. Email brian@brand-tastic.ca and
-you're in."* Then check Table Editor → `waitlist` for the row, and delete it.
-
-## 2. Create the staging Supabase project — 10 minutes
-
-Region should match production. The database password is not recoverable and
-session 02 needs it — save it to your password manager, and do not reuse
-production's.
-
-```bash
-supabase orgs list
-supabase projects list          # note production's region
-supabase projects create fetch-staging \
-  --org-id <ORG_ID> \
-  --region <SAME_REGION_AS_PRODUCTION> \
-  --db-password '<A_FRESH_PASSWORD>'
-supabase projects list          # note the new project ref
-supabase projects api-keys --project-ref <STAGING_REF>
-```
-
-Send back the **project ref** and the **publishable / anon key**. Not the secret
-key — it bypasses row-level security and nothing in session 01 or 02 needs it.
-
-**Worked when:** the project shows Active in the dashboard and
-`supabase projects list` includes it.
-
-## 3. Create the `staging` branch — 1 minute
+## 1. Create the `staging` branch — 1 minute
 
 ```bash
 git checkout main && git pull
@@ -74,19 +43,12 @@ git checkout -b staging
 git push -u origin staging
 ```
 
-## 4. Set the staging Netlify variables — 3 minutes
-
-Netlify → fetch-and-prove → Project configuration → Environment variables.
-
-Add `SB_URL` and `SB_KEY` for **branch deploys** and **deploy previews**,
-pointing at `fetch-staging`. Full contract in `docs/environments.md`.
-
 Leave `SUPABASE_SERVICE_ROLE_KEY` unset. When it is eventually needed
 (session 06 at the earliest) it is scoped **Functions only**, never Builds — a
 Builds-scoped variable can end up inside a file the browser downloads and
 nothing warns you.
 
-## 5. Deploy contexts — 2 minutes
+## 2. Deploy contexts — 2 minutes
 
 Netlify → Build & deploy → Deploy contexts:
 
@@ -97,7 +59,7 @@ Not "all branches". Every feature branch getting a public URL against the
 staging database is how fictional bookings carrying real property names end up
 indexed by Google.
 
-## 6. Land the session 01 commit — 2 minutes
+## 3. Land the session 01 commit — 2 minutes
 
 The branch cannot be pushed from a cloud session: the repo is not in this
 session's authorized set and there is no token. Either link a desktop session
@@ -139,12 +101,22 @@ way: it fell back to our own `/go.html?c=CODE`, and since `go.html` redirects to
 whatever is in `tracked_url`, that is an infinite redirect loop. Both now refuse
 to create the tag and say why.
 
-**Worth checking once the database is reachable:** whether any existing row has
-a `tracked_url` that points at `fetch.travel` or back at `/go.html`. Either way
-those tags are dead links.
+**Checked 14 Sep against production — clean.** 23 tags, zero pointing at
+`fetch.travel`, zero pointing back at `/go.html`, and all 12 properties have a
+booking URL. Both bugs were latent. Worth re-running after the first property is
+onboarded without a booking engine:
 
 ```sql
 select code, tracked_url from tags
 where tracked_url ilike '%fetch.travel%'
    or tracked_url ilike '%/go.html%';
 ```
+
+**The click views ignore RLS.** Supabase's security advisor flags
+`click_counts`, `click_weeks` and `click_months` as ERROR-level
+`SECURITY DEFINER` views: they run with the creator's permissions, not the
+querying user's. That changes nothing today, because every policy is
+`using (true)` anyway. It matters in **session 04**: tighten the policies and
+these views keep returning every creator's click data straight past them, with
+no warning. Fix them in the same pass.
+<https://supabase.com/docs/guides/database/database-linter?lint=0010_security_definer_view>

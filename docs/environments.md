@@ -7,9 +7,14 @@ actually do, not against what the roadmap assumed.
 
 | Context | Netlify | Supabase project | `FETCH_ENV` | Indexed |
 |---|---|---|---|---|
-| Production | `main` → fetch-and-prove.netlify.app | `sqzuvtshebrgzivyzyif` | `production` | yes |
-| Staging | `staging` branch deploy | `fetch-staging` *(not created yet)* | `staging` | no |
-| Preview | pull request deploy | `fetch-staging` | `preview` | no |
+| Production | `main` → fetch-and-prove.netlify.app | `Fetch and Prove` — `sqzuvtshebrgzivyzyif` | `production` | yes |
+| Staging | `staging` branch deploy | `fetch-staging` — `crvuzehuiluoxqehtcta` | `staging` | no |
+| Preview | pull request deploy | `fetch-staging` — `crvuzehuiluoxqehtcta` | `preview` | no |
+
+Both projects are in **us-east-2**, in the **CTMS Travel** org. Staging was
+created 14 Sep and is deliberately **empty** — the schema arrives in session 02
+as versioned migrations, which is the whole point of doing migrations before
+schema v1.
 
 `FETCH_ENV` is set per context in `netlify.toml`, not in the Netlify UI, so it
 lives in the repo and travels with a branch.
@@ -24,12 +29,16 @@ fictional bookings carrying real property names end up indexed.
 |---|---|---|---|---|
 | `SB_URL` | production | builds, functions | `https://sqzuvtshebrgzivyzyif.supabase.co` | **set 14 Sep** |
 | `SB_KEY` | production | builds, functions | production publishable key | **set 14 Sep** |
-| `SB_URL` | branch-deploy, deploy-preview | builds, functions | staging project URL | waiting on `fetch-staging` |
-| `SB_KEY` | branch-deploy, deploy-preview | builds, functions | staging publishable key | waiting on `fetch-staging` |
+| `SB_URL` | branch-deploy | builds, functions | `https://crvuzehuiluoxqehtcta.supabase.co` | **set 14 Sep** |
+| `SB_KEY` | branch-deploy | builds, functions | staging publishable key | **set 14 Sep** |
+| `SB_URL` | deploy-preview | builds, functions | `https://crvuzehuiluoxqehtcta.supabase.co` | **set 14 Sep** |
+| `SB_KEY` | deploy-preview | builds, functions | staging publishable key | **set 14 Sep** |
 | `SUPABASE_SERVICE_ROLE_KEY` | per context | **functions only** | staging / production secret key | not set — nothing needs it yet |
 
 The project had **zero** environment variables before 14 Sep, so nothing was
-overwritten.
+overwritten. All six values are live in Netlify and verified; the key values
+themselves are not repeated in this file, because a doc is a worse place to
+keep a credential than the place that already holds it.
 
 ### The one that can hurt you
 

@@ -151,7 +151,8 @@
 <script>
 const SB_URL = 'https://sqzuvtshebrgzivyzyif.supabase.co';
 const SB_KEY = 'sb_publishable_xbumKc7i0RuG4ARzSSB40w_jOuv0ihq';
-const SITE = location.origin;
+// Host that tracked /go links are published under. See docs/environments.md.
+const GO_LINK_HOST = location.origin;
 let sb = null;
 try { sb = supabase.createClient(SB_URL, SB_KEY); } catch(e){}
 const $ = id => document.getElementById(id);
@@ -346,7 +347,7 @@ function load(){
 }
 
 function copyLink(code, btn){
-  navigator.clipboard.writeText(`${SITE}/go.html?c=${code}`).then(()=>{
+  navigator.clipboard.writeText(`${GO_LINK_HOST}/go.html?c=${code}`).then(()=>{
     const o = btn.textContent; btn.textContent = 'Copied'; setTimeout(()=>btn.textContent=o, 1500);
   });
 }
@@ -360,12 +361,17 @@ async function grabLink(propId, btn){
   const prop = cache.props.find(p => p.id === propId);
   try {
     const code = makeCode(me, prop.name);
-    const sep = (prop.booking_url||'').includes('?') ? '&' : '?';
-    const dest = prop.booking_url ? `${prop.booking_url}${sep}ref=${code}&utm_source=fetch&utm_medium=creator` : `${SITE}/go.html?c=${code}`;
+    // No booking engine means the tag has nowhere to send anyone. Falling back
+    // to our own /go.html here would make go.html redirect to itself, because
+    // it redirects to whatever is in tracked_url — an infinite loop for the
+    // traveller and a tap that can never become a booking.
+    if (!prop.booking_url) return flash('netFlash', `${prop.name} has no booking link yet, so there's nothing to send anyone to. We'll chase it up.`, false);
+    const sep = prop.booking_url.includes('?') ? '&' : '?';
+    const dest = `${prop.booking_url}${sep}ref=${code}&utm_source=fetch&utm_medium=creator`;
     const { data, error } = await sb.from('tags').insert({ creator_handle: me, property_id: propId, code, tracked_url: dest }).select().single();
     if (error) throw error;
     cache.tags.push(data);
-    navigator.clipboard.writeText(`${SITE}/go.html?c=${code}`).catch(()=>{});
+    navigator.clipboard.writeText(`${GO_LINK_HOST}/go.html?c=${code}`).catch(()=>{});
     flash('netFlash', `Link created for ${prop.name} and copied. Code: ${code}`);
     load();
   } catch(e){ flash('netFlash', 'Could not create: '+e.message, false); }

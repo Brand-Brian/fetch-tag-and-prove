@@ -1,0 +1,78 @@
+# FETCH — Netlify configuration
+# Session 01 (Phase 0, Foundations). See docs/environments.md for the variable
+# contract and docs/session-01-apply.md for the account-level steps.
+#
+# No [build] command is set on purpose. build.py stamps the shared nav and
+# footer into the HTML and its output is already committed, so running it at
+# deploy time would be a no-op. When the client-credential decision lands
+# (option (a): stamp SB_URL / SB_KEY from the environment at deploy time), the
+# command goes here and the source files switch to placeholders.
+
+[build]
+  publish = "."
+
+# --- Contexts -----------------------------------------------------------
+# FETCH_ENV is the single flag the front end can read to know where it is.
+# It lives here rather than in the Netlify UI so the value is in the repo and
+# moves with a branch.
+
+[context.production.environment]
+  FETCH_ENV = "production"
+
+[context.branch-deploy.environment]
+  FETCH_ENV = "staging"
+
+[context.deploy-preview.environment]
+  FETCH_ENV = "preview"
+
+# --- Reserved paths -----------------------------------------------------
+# /go/* and /px are NOT redirected yet. They get declared alongside the edge
+# functions that serve them, in sessions 06 and 08.
+#
+# Today /go is go.html?c=CODE — a client-side page that reads `tags` and
+# redirects. A force redirect to a function that does not exist yet returns
+# 404 on every tracked link, which is the whole funnel. Do not add these early.
+#
+#   [[redirects]]                     # session 06
+#     from = "/go/*"
+#     to = "/.netlify/functions/go/:splat"
+#     status = 200
+#     force = true
+#
+#   [[redirects]]                     # session 08
+#     from = "/px"
+#     to = "/.netlify/functions/px"
+#     status = 200
+#     force = true
+
+# --- Headers ------------------------------------------------------------
+# Baseline only. No Content-Security-Policy yet: every page runs inline script
+# and loads supabase-js from cdn.jsdelivr.net plus images from
+# images.unsplash.com, so a CSP written blind would break the site. It gets
+# written properly in a hardening session, against the real source list.
+
+[[headers]]
+  for = "/*"
+
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "geolocation=(), microphone=(), camera=()"
+    Strict-Transport-Security = "max-age=31536000; includeSubDomains"
+
+# Keep staging and preview builds out of search results. Without this, a deploy
+# preview carrying fictional bookings against real property names is publicly
+# indexable.
+
+[[context.branch-deploy.headers]]
+  for = "/*"
+
+  [context.branch-deploy.headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[context.deploy-preview.headers]]
+  for = "/*"
+
+  [context.deploy-preview.headers.values]
+    X-Robots-Tag = "noindex, nofollow"

@@ -66,17 +66,24 @@ FOOT = """<footer class="site-foot">
 </footer>"""
 
 def stamp(path):
+    """Returns 'updated', 'current' or 'no markers'.
+
+    'current' and 'no markers' both used to print as "no markers", which reads
+    as a broken file when it usually means the opposite — the page is already
+    stamped and there is nothing to do.
+    """
     p = pathlib.Path(path)
     s = p.read_text(encoding="utf-8")
     orig = s
+    has_markers = "<!--NAV-->" in s or "<!--FOOT-->" in s
     s = re.sub(r"<!--NAV-->.*?<!--/NAV-->", "<!--NAV-->" + NAV + "<!--/NAV-->", s, flags=re.S)
     s = re.sub(r"<!--FOOT-->.*?<!--/FOOT-->", "<!--FOOT-->" + FOOT + "<!--/FOOT-->", s, flags=re.S)
     if s != orig:
         p.write_text(s, encoding="utf-8")
-        return True
-    return False
+        return "updated"
+    return "current" if has_markers else "no markers"
 
 if __name__ == "__main__":
     files = sys.argv[1:] or [str(f) for f in pathlib.Path(".").glob("*.html")]
     for f in files:
-        print(("updated " if stamp(f) else "no markers ") + f)
+        print("%-11s %s" % (stamp(f), f))

@@ -48,16 +48,16 @@ Leave `SUPABASE_SERVICE_ROLE_KEY` unset. When it is eventually needed
 Builds-scoped variable can end up inside a file the browser downloads and
 nothing warns you.
 
-## 2. Deploy contexts — 2 minutes
+## ~~2. Deploy contexts~~ — done 14 Sep
 
-Netlify → Build & deploy → Deploy contexts:
+Confirmed set in Netlify → Build & deploy → Branches and deploy contexts:
 
-- Deploy previews: **on** for pull requests
-- Branch deploys: **let me add individual branches** → `staging` only
-
-Not "all branches". Every feature branch getting a public URL against the
-staging database is how fictional bookings carrying real property names end up
-indexed by Google.
+- Production branch: `main`
+- Branch deploys: `staging` only — **not** "All". Every feature branch getting a
+  public URL against the staging database is how fictional bookings carrying
+  real property names end up indexed by Google.
+- Deploy previews: any pull request against the production branch / branch
+  deploy branches
 
 ## 3. Land the session 01 commit — 2 minutes
 

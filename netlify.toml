@@ -64,15 +64,20 @@
 # Keep staging and preview builds out of search results. Without this, a deploy
 # preview carrying fictional bookings against real property names is publicly
 # indexable.
+#
+# This CANNOT be done with [[context.<name>.headers]]. Netlify's file-based
+# configuration docs are explicit: "Redirects and headers are GLOBAL for all
+# builds - they do not get scoped to contexts no matter where you define them in
+# the file." A context-scoped headers block parses as valid TOML and is then
+# silently ignored, so the preview would serve no X-Robots-Tag at all.
+#
+# The documented workaround is a per-context build command that writes a
+# _headers file into the publish directory. _headers is per-deploy, so it is the
+# only context-specific header mechanism Netlify has. Production gets no command
+# and so stays indexable.
 
-[[context.branch-deploy.headers]]
-  for = "/*"
+[context.branch-deploy]
+  command = 'printf "/*\n  X-Robots-Tag: noindex, nofollow\n" > _headers'
 
-  [context.branch-deploy.headers.values]
-    X-Robots-Tag = "noindex, nofollow"
-
-[[context.deploy-preview.headers]]
-  for = "/*"
-
-  [context.deploy-preview.headers.values]
-    X-Robots-Tag = "noindex, nofollow"
+[context.deploy-preview]
+  command = 'printf "/*\n  X-Robots-Tag: noindex, nofollow\n" > _headers'

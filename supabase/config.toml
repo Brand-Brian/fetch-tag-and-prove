@@ -1,0 +1,18 @@
+# FETCH — Supabase CLI configuration
+# Session 02, 15 September 2026.
+#
+# Minimal on purpose. The CLI is used here for ONE job: versioned migrations
+# applied to staging first, then production. No local stack, no edge functions
+# yet (those arrive in sessions 06 and 08), no auth config yet (session 04).
+#
+# project_id is the CLI's local label, not a Supabase project ref. The real
+# refs are chosen by `supabase link`:
+#   production  sqzuvtshebrgzivyzyif
+#   staging     crvuzehuiluoxqehtcta
+
+project_id = "fetch-tag-and-prove"
+
+[db]
+# Match the remote major version so a local `supabase start` and the hosted
+# projects do not disagree about generated-column and view behaviour.
+major_version = 17

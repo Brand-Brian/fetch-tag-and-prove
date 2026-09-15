@@ -372,7 +372,12 @@
 /* ---------------- state & storage ---------------- */
 let sb = null;                 // supabase client, null = demo mode
 let demo = { props: [], tags: [], bookings: [], leads: [], clicks: [] };
-const SITE_URL = 'https://fetch-and-prove.netlify.app';
+// Host that tracked /go links are published under. Defaults to wherever the
+// page is served from, so staging and preview builds mint their own links
+// instead of pointing at production. Override it here — and only here — on the
+// day a permanent short-link domain is bought; nothing else needs to change.
+// See docs/environments.md.
+const GO_LINK_HOST = location.origin;
 
 const $ = (id) => document.getElementById(id);
 const money = (n) => '$' + Number(n).toLocaleString('en-CA', {minimumFractionDigits:2, maximumFractionDigits:2});
@@ -499,8 +504,15 @@ function makeCode(creator, propName){
   const r = Math.random().toString(36).slice(2,5).toUpperCase();
   return `FETCH-${c}-${p}-${r}`;
 }
+// Returns null when the property has no booking engine to send anyone to.
+// It used to return `https://fetch.travel/go/CODE` — a domain FETCH does not
+// own — which meant any tag created against a property with no booking URL
+// stored a destination pointing at a third party. Callers must handle null:
+// a tag with no destination cannot work, and go.html redirects to whatever is
+// in tracked_url, so inventing a FETCH-hosted placeholder here would send the
+// traveller into a redirect loop instead.
 function makeTrackedUrl(bookingUrl, code){
-  if (!bookingUrl) return `https://fetch.travel/go/${code}`;   // placeholder short-link
+  if (!bookingUrl) return null;
   const sep = bookingUrl.includes('?') ? '&' : '?';
   return `${bookingUrl}${sep}ref=${code}&utm_source=fetch&utm_medium=creator`;
 }
@@ -515,6 +527,7 @@ async function createTag(){
     const prop = props.find(p => p.id === propId);
     const code = makeCode(creator, prop.name);
     const tracked = makeTrackedUrl(prop.booking_url, code);
+    if (!tracked) return flash('tagFlash', prop.name + ' has no booking URL, so a tag would have nowhere to send anyone. Add one in Network first.', false);
     const tag = await dbInsert('tags', {
       creator_handle: creator.startsWith('@') ? creator : '@' + creator,
       property_id: propId,
@@ -530,7 +543,7 @@ async function createTag(){
 }
 
 function tagCard(tag, prop){
-  const share = `${SITE_URL}/go.html?c=${tag.code}`;
+  const share = `${GO_LINK_HOST}/go.html?c=${tag.code}`;
   return `<div class="panel">
     <b style="color:var(--gold)">${esc(tag.creator_handle)}</b> × ${esc(prop ? prop.name : 'property')}
     <label style="margin-top:.75rem">Share link — this is what goes in bios, Stories, and DMs. Every tap is counted.</label>
